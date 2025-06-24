@@ -1,28 +1,14 @@
 "use client";
-
+import Navbar from "./components/navbar";
 import Link from "next/link";
 
 export default function HomePage() {
   return (
     <main className="min-h-screen bg-gray-50 p-6">
       {/* Navigation bar */}
-      <nav className="flex justify-between items-center max-w-5xl mx-auto mb-8">
-        <div className="text-2xl font-bold text-gray-800">🎓 UniHub</div>
-        <div className="space-x-4">
-          <Link
-            href="/signin"
-            className="px-4 py-2 rounded-md border border-blue-600 text-blue-600 hover:bg-blue-50 transition"
-          >
-            Sign In
-          </Link>
-          <Link
-            href="/login"
-            className="px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700 transition"
-          >
-            Log In
-          </Link>
-        </div>
-      </nav>
+      <Navbar />
+
+      {/* Main content */}
 
       <div className="max-w-5xl mx-auto">
         <h1 className="text-3xl font-bold text-gray-800 mb-6">
@@ -97,7 +83,7 @@ export default function HomePage() {
           </Link>
 
           <Link
-            href="/ustozreytingi"
+            href="/ustozreyting"
             className="block bg-indigo-100 hover:bg-indigo-200 p-6 rounded-2xl shadow border border-indigo-200"
           >
             <h2 className="text-xl font-semibold text-indigo-800">

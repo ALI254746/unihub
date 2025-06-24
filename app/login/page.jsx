@@ -1,86 +1,85 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
-  const router = useRouter();
-
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [form, setForm] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
+  const router = useRouter();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
 
-    // Oddiy validatsiya
-    if (!email || !password) {
-      setError("Iltimos, barcha maydonlarni to'ldiring");
-      return;
-    }
+    try {
+      const res = await fetch("/api/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(form),
+      });
 
-    // Bu yerda autentifikatsiya logikasini yozasan,
-    // Masalan, API ga so'rov yuborish
-    // Hozircha oddiy tekshiruv:
-    if (email === "student@unihub.com" && password === "123456") {
-      setError("");
-      // Kirish muvaffaqiyatli bo‘lsa, bosh sahifaga yo‘naltirish
-      router.push("/");
-    } else {
-      setError("Email yoki parol noto‘g‘ri");
+      if (res.ok) {
+        router.push("/admin"); // 👈 middleware token va role asosida adminni to'g'ri sahifaga yo‘naltiradi
+      } else {
+        const msg = await res.text();
+        setError(msg || "Xatolik yuz berdi");
+      }
+    } catch (err) {
+      setError("Tizimga ulanishda xatolik");
+      console.error("Login error:", err);
     }
   };
 
   return (
-    <div style={{ maxWidth: 400, margin: "auto", padding: 20 }}>
-      <h1>UniHub Login</h1>
-      <form onSubmit={handleSubmit}>
-        <label>
-          Email:
+    <main className="min-h-screen flex items-center justify-center bg-blue-50 px-4">
+      <div className="bg-white p-8 rounded-xl shadow-lg w-full max-w-md">
+        <h1 className="text-2xl font-bold text-blue-700 mb-6 text-center">
+          🔐 Tizimga kirish - UniHub
+        </h1>
+
+        {error && (
+          <p className="text-red-600 bg-red-50 border border-red-200 px-3 py-2 rounded mb-4 text-sm">
+            {error}
+          </p>
+        )}
+
+        <form onSubmit={handleSubmit} className="space-y-4">
           <input
             type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="Emailingizni kiriting"
-            style={{
-              width: "100%",
-              padding: 8,
-              marginTop: 4,
-              marginBottom: 12,
-            }}
+            placeholder="Email"
+            value={form.email}
+            onChange={(e) => setForm({ ...form, email: e.target.value })}
+            className="w-full border border-gray-300 rounded px-4 py-2 text-black"
+            required
           />
-        </label>
-        <label>
-          Parol:
           <input
             type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Parolingizni kiriting"
-            style={{
-              width: "100%",
-              padding: 8,
-              marginTop: 4,
-              marginBottom: 12,
-            }}
+            placeholder="Parol"
+            value={form.password}
+            onChange={(e) => setForm({ ...form, password: e.target.value })}
+            className="w-full border border-gray-300 rounded px-4 py-2 text-black"
+            required
           />
-        </label>
-        {error && <div style={{ color: "red", marginBottom: 12 }}>{error}</div>}
-        <button
-          type="submit"
-          style={{
-            padding: "10px 20px",
-            backgroundColor: "#0070f3",
-            color: "white",
-            border: "none",
-            cursor: "pointer",
-            width: "100%",
-            fontSize: 16,
-          }}
-        >
-          Kirish
-        </button>
-      </form>
-    </div>
+
+          <button
+            type="submit"
+            className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
+          >
+            Kirish
+          </button>
+        </form>
+
+        <p className="mt-4 text-sm text-gray-600 text-center">
+          Akkountingiz yo‘qmi?{" "}
+          <Link href="/register" className="text-blue-600 hover:underline">
+            Ro‘yxatdan o‘ting
+          </Link>
+        </p>
+      </div>
+    </main>
   );
 }
