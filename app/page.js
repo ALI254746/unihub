@@ -37,6 +37,17 @@ export default function HomePage() {
               Kurslar boyicha materiallar va darsliklar
             </p>
           </Link>
+          <Link
+            href="/booking"
+            className="block bg-blue-100 hover:bg-blue-200 p-6 rounded-2xl shadow border border-blue-200"
+          >
+            <h2 className="text-xl font-semibold text-blue-800">
+              🗓️ Joy band qilish
+            </h2>
+            <p className="text-sm text-gray-700 mt-2">
+              Kutubxona, sport zali yoki o‘quv xonani onlayn bron qiling
+            </p>
+          </Link>
 
           <Link
             href="/profile"

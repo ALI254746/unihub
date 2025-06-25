@@ -8,13 +8,12 @@ export default function Navbar() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const router = useRouter();
 
-  // checkAuth funksiyasini tashqarida e'lon qilamiz
   const checkAuth = async () => {
     try {
       const res = await fetch("/api/me");
       const data = await res.json();
       setIsLoggedIn(data.isLoggedIn);
-    } catch (err) {
+    } catch {
       setIsLoggedIn(false);
     }
   };
@@ -25,16 +24,18 @@ export default function Navbar() {
 
   const handleLogout = async () => {
     await fetch("/api/logout", { method: "POST" });
-    await checkAuth(); // log out'dan keyin holatni tekshiramiz
+    setIsLoggedIn(false); // frontend holatini darhol o‘zgartiramiz
     router.push("/");
-    router.refresh(); // sahifani yangilaymiz
+    router.refresh(); // backend holatini yangilaymiz
   };
 
   return (
     <nav className="flex justify-between items-center max-w-5xl mx-auto mb-8">
       <div className="text-2xl font-bold text-gray-800">🎓 UniHub</div>
       <div className="space-x-4">
-        {isLoggedIn ? (
+        {isLoggedIn === null ? (
+          <span className="text-gray-500">Yuklanmoqda...</span>
+        ) : isLoggedIn ? (
           <button
             onClick={handleLogout}
             className="px-4 py-2 rounded-md bg-red-500 text-white hover:bg-red-600"

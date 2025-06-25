@@ -7,9 +7,11 @@ const protectedRoutes = [
   "/profile",
   "/talabalarkulubi",
   "/muammolar",
-  "/ustozreytingi",
+  "/ustozreyting",
   "/staff",
   "/darsresurslari",
+  "/turnirlar",
+  "/booking",
 ];
 
 const adminRoutes = ["/admin"];
@@ -48,7 +50,6 @@ export async function middleware(request) {
 
   return NextResponse.next();
 }
-
 export const config = {
   matcher: [
     "/chat/:path*",
@@ -56,9 +57,11 @@ export const config = {
     "/profile/:path*",
     "/talabalarkulubi/:path*",
     "/muammolar/:path*",
-    "/ustozreytingi/:path*",
+    "/ustozreyting/:path*",
     "/staff/:path*",
     "/darsresurslari/:path*",
     "/admin/:path*",
+    "/turnirlar/:path*", // ✅ Qo‘shildi
+    "/booking/:path*",
   ],
 };

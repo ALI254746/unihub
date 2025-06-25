@@ -7,11 +7,13 @@ import { useRouter } from "next/navigation";
 export default function LoginPage() {
   const [form, setForm] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false); // 👈 Yangi holat
   const router = useRouter();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    setLoading(true); // 👈 Yuklanishni boshladik
 
     try {
       const res = await fetch("/api/login", {
@@ -23,7 +25,7 @@ export default function LoginPage() {
       });
 
       if (res.ok) {
-        router.push("/admin"); // 👈 middleware token va role asosida adminni to'g'ri sahifaga yo‘naltiradi
+        router.push("/admin");
       } else {
         const msg = await res.text();
         setError(msg || "Xatolik yuz berdi");
@@ -31,6 +33,8 @@ export default function LoginPage() {
     } catch (err) {
       setError("Tizimga ulanishda xatolik");
       console.error("Login error:", err);
+    } finally {
+      setLoading(false); // 👈 Har holda tugatildi
     }
   };
 
@@ -67,9 +71,10 @@ export default function LoginPage() {
 
           <button
             type="submit"
-            className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
+            className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 disabled:opacity-50"
+            disabled={loading}
           >
-            Kirish
+            {loading ? "⏳ Yuklanmoqda..." : "Kirish"}
           </button>
         </form>
 
