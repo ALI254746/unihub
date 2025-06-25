@@ -71,6 +71,18 @@ export default function HomePage() {
               Dasturchilar dizaynerlar va boshqa klublarga azo boling
             </p>
           </Link>
+          <Link
+            href="/turnirlar"
+            className="block bg-green-100 hover:bg-green-200 p-6 rounded-2xl shadow border border-green-200"
+          >
+            <h2 className="text-xl font-semibold text-green-800">
+              🏆 Turnirlar
+            </h2>
+            <p className="text-sm text-gray-700 mt-2">
+              Dasturlash, dizayn va boshqa sohalardagi turnirlarda ishtirok
+              eting.
+            </p>
+          </Link>
 
           <Link
             href="/muammolar"

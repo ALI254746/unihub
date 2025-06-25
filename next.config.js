@@ -1,10 +1,10 @@
-// next.config.js
-
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // boshqa sozlamalaring bo‘lsa qoldir
   experimental: {
     serverActions: {},
+  },
+  images: {
+    domains: ["source.unsplash.com", "images.unsplash.com"],
   },
 };
 
