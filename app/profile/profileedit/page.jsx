@@ -1,6 +1,9 @@
 "use client";
 
-const user = {
+import { useState } from "react";
+import Link from "next/link";
+
+const initialUser = {
   name: "Ali Karimov",
   gpa: 3.8,
   direction: "Kompyuter injiniring",
@@ -20,11 +23,34 @@ const user = {
   ],
 };
 
-import Link from "next/link";
-
 export default function ProfilePage() {
+  const [user, setUser] = useState(initialUser);
+  const [showEdit, setShowEdit] = useState(false);
+  const [formData, setFormData] = useState(user);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    if (["telegram", "instagram", "linkedin"].includes(name)) {
+      setFormData({
+        ...formData,
+        social: {
+          ...formData.social,
+          [name]: value,
+        },
+      });
+    } else {
+      setFormData({ ...formData, [name]: value });
+    }
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setUser(formData);
+    setShowEdit(false);
+  };
+
   return (
-    <main className="min-h-screen bg-gray-50 p-6">
+    <main className="min-h-screen bg-gray-50 p-6 relative">
       <div className="max-w-5xl mx-auto">
         {/* Navigation */}
         <nav className="flex justify-between items-center mb-8">
@@ -76,82 +102,148 @@ export default function ProfilePage() {
 
           {/* Social Links */}
           <div className="flex gap-6 justify-center sm:justify-start mb-8 text-gray-700">
-            <a
-              href={user.social.telegram}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hover:text-blue-500 transition"
-              aria-label="Telegram"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="currentColor"
-                viewBox="0 0 24 24"
-                className="w-7 h-7"
-              >
-                <path d="M22.54 3.42a1.74 1.74 0 00-2.38-.44L3.48 11.11a1.5 1.5 0 00.12 2.71l4.18 1.37 2.15 6.1a1.5 1.5 0 002.44.39l3.86-4.91 5.13-11.41a1.74 1.74 0 00-.42-2.44z" />
-              </svg>
+            <a href={user.social.telegram} target="_blank">
+              📨 Telegram
             </a>
-            <a
-              href={user.social.instagram}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hover:text-pink-500 transition"
-              aria-label="Instagram"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                viewBox="0 0 24 24"
-                className="w-7 h-7"
-              >
-                <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
-                <path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z" />
-                <line x1="17.5" y1="6.5" x2="17.5" y2="6.5" />
-              </svg>
+            <a href={user.social.instagram} target="_blank">
+              📷 Instagram
             </a>
-            <a
-              href={user.social.linkedin}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hover:text-blue-700 transition"
-              aria-label="LinkedIn"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="currentColor"
-                viewBox="0 0 24 24"
-                className="w-7 h-7"
-              >
-                <path d="M4.98 3.5a2.5 2.5 0 11.001 5.001A2.5 2.5 0 014.98 3.5zM3 8.75h4v12H3v-12zM8 8.75h3.6v1.63h.05a3.95 3.95 0 013.55-1.95c3.8 0 4.5 2.5 4.5 5.75v6.57H15v-6c0-1.44-.03-3.3-2.01-3.3-2.01 0-2.32 1.57-2.32 3.2v6.11H8v-12z" />
-              </svg>
+            <a href={user.social.linkedin} target="_blank">
+              🔗 LinkedIn
             </a>
           </div>
 
-          {/* Yutuqlar */}
+          {/* Achievements */}
           <div>
-            <h2 className="text-2xl font-semibold text-gray-900 mb-4 flex items-center gap-3">
+            <h2 className="text-2xl font-semibold text-gray-900 mb-4">
               🏆 Yutuqlar
             </h2>
             <ul className="list-disc list-inside text-gray-700 space-y-2">
               {user.achievements.map((item, idx) => (
-                <li key={idx} className="flex items-center gap-2">
-                  <span>✔️</span> {item}
-                </li>
+                <li key={idx}>✔️ {item}</li>
               ))}
             </ul>
           </div>
 
           {/* Tahrirlash tugmasi */}
           <div className="mt-8 text-right">
-            <button className="px-5 py-3 bg-gray-800 text-white rounded hover:bg-gray-900 transition">
+            <button
+              onClick={() => setShowEdit(true)}
+              className="px-5 py-3 bg-gray-800 text-white rounded hover:bg-gray-900 transition"
+            >
               Profilni tahrirlash ✏️
             </button>
           </div>
         </section>
       </div>
+
+      {/* Modal Form */}
+      {showEdit && (
+        <div className="fixed inset-0  backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <form
+            onSubmit={handleSubmit}
+            className="bg-white p-6 rounded-xl shadow-xl w-full max-w-xl space-y-4"
+          >
+            <h2 className="text-2xl font-bold text-center text-gray-800">
+              Profilni Tahrirlash
+            </h2>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-black">
+              <input
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                placeholder="Ism"
+                className="border p-2 rounded"
+              />
+              <input
+                name="gpa"
+                value={formData.gpa}
+                onChange={handleChange}
+                placeholder="GPA"
+                className="border p-2 rounded"
+              />
+              <input
+                name="direction"
+                value={formData.direction}
+                onChange={handleChange}
+                placeholder="Yo‘nalish"
+                className="border p-2 rounded"
+              />
+              <input
+                name="course"
+                value={formData.course}
+                onChange={handleChange}
+                placeholder="Kurs"
+                className="border p-2 rounded"
+              />
+              <input
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                placeholder="Email"
+                className="border p-2 rounded"
+              />
+              <input
+                name="phone"
+                value={formData.phone}
+                onChange={handleChange}
+                placeholder="Telefon"
+                className="border p-2 rounded"
+              />
+            </div>
+
+            <textarea
+              name="bio"
+              value={formData.bio}
+              onChange={handleChange}
+              placeholder="Bio"
+              className="border p-2 rounded w-full text-black"
+              rows={3}
+            />
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-black">
+              <input
+                name="telegram"
+                value={formData.social.telegram}
+                onChange={handleChange}
+                placeholder="Telegram"
+                className="border p-2 rounded"
+              />
+              <input
+                name="instagram"
+                value={formData.social.instagram}
+                onChange={handleChange}
+                placeholder="Instagram"
+                className="border p-2 rounded"
+              />
+              <input
+                name="linkedin"
+                value={formData.social.linkedin}
+                onChange={handleChange}
+                placeholder="LinkedIn"
+                className="border p-2 rounded"
+              />
+            </div>
+
+            <div className="flex justify-between pt-4">
+              <button
+                type="button"
+                onClick={() => setShowEdit(false)}
+                className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+              >
+                Bekor qilish
+              </button>
+              <button
+                type="submit"
+                className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+              >
+                Saqlash
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
     </main>
   );
 }
