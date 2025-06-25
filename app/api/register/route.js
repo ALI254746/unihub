@@ -5,7 +5,7 @@ import { cookies } from "next/headers";
 import bcrypt from "bcryptjs";
 
 export async function POST(req) {
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
 
   try {
     const { email, password } = await req.json();
