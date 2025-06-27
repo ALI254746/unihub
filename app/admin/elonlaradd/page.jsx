@@ -1,6 +1,24 @@
 "use client";
-import { useState } from "react";
 
+import { useState, useEffect } from "react";
+// 🕒 Vaqt formatlash funksiyasi
+function formatTimeAgo(dateString) {
+  const date = new Date(dateString);
+  const now = new Date();
+  const diffMs = now - date;
+
+  const diffSec = Math.floor(diffMs / 1000);
+  const diffMin = Math.floor(diffSec / 60);
+  const diffHr = Math.floor(diffMin / 60);
+  const diffDay = Math.floor(diffHr / 24);
+
+  if (diffSec < 60) return `${diffSec} soniya oldin`;
+  if (diffMin < 60) return `${diffMin} daqiqa oldin`;
+  if (diffHr < 24) return `${diffHr} soat oldin`;
+  if (diffDay < 7) return `${diffDay} kun oldin`;
+
+  return date.toLocaleDateString(); // Agar 7 kundan oshsa
+}
 export default function AdminElonFormPage() {
   const [form, setForm] = useState({
     title: "",
@@ -12,6 +30,25 @@ export default function AdminElonFormPage() {
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
 
+  // 🔄 E'lonlarni yuklab olish (sahifa yuklanganda)
+  useEffect(() => {
+    const fetchElonlar = async () => {
+      try {
+        const res = await fetch("/api/adminapi/elon");
+        const data = await res.json();
+        if (res.ok) {
+          setElonlar(data);
+        } else {
+          console.error("❌ Xatolik:", data.message);
+        }
+      } catch (err) {
+        console.error("🔌 Ulanishda xatolik:", err);
+      }
+    };
+
+    fetchElonlar();
+  }, []);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSuccess("");
@@ -19,7 +56,7 @@ export default function AdminElonFormPage() {
     setLoading(true);
 
     try {
-      const res = await fetch("/api/admin/elon", {
+      const res = await fetch("/api/adminapi/elon", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
@@ -29,7 +66,7 @@ export default function AdminElonFormPage() {
 
       if (res.ok) {
         setSuccess("✅ E’lon joylandi!");
-        setElonlar((prev) => [...prev, data.newElon]);
+        setElonlar((prev) => [data.newElon, ...prev]);
         setForm({ title: "", description: "", category: "yangilik" });
       } else {
         setError(data.message || "Xatolik yuz berdi");
@@ -45,7 +82,7 @@ export default function AdminElonFormPage() {
     const confirmed = confirm("Rostdan ham o‘chirmoqchimisiz?");
     if (!confirmed) return;
 
-    const res = await fetch(`/api/admin/elon/${id}`, {
+    const res = await fetch(`/api/adminapi/elon/${id}`, {
       method: "DELETE",
     });
 
@@ -58,7 +95,7 @@ export default function AdminElonFormPage() {
     <div className="min-h-screen bg-blue-50 p-6 flex justify-end">
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* Form bo‘limi */}
-        <div className="bg-white rounded-2xl shadow p-6 border border-blue-100">
+        <div className="bg-white rounded-2xl shadow p-6 border border-blue-100 text-black">
           <h2 className="text-2xl font-bold text-blue-700 mb-4">
             ➕ Yangi e’lon qo‘shish
           </h2>
@@ -120,12 +157,24 @@ export default function AdminElonFormPage() {
                   key={elon._id}
                   className="border border-gray-200 rounded-xl p-4 shadow-sm bg-blue-50"
                 >
-                  <h3 className="font-semibold text-lg text-blue-800">
-                    {elon.title}
-                  </h3>
+                  <div className="flex justify-between items-center">
+                    <h3 className="font-semibold text-lg text-blue-800">
+                      {elon.title}
+                    </h3>
+                    <span className="text-sm text-gray-500 italic">
+                      {formatTimeAgo(elon.createdAt)}
+                    </span>
+                  </div>
+
                   <p className="text-gray-700 mt-1 text-sm">
                     {elon.description}
                   </p>
+
+                  <div className="text-sm text-gray-600 mt-1">
+                    📌 Kategoriya:{" "}
+                    <span className="font-medium">{elon.category}</span>
+                  </div>
+
                   <div className="mt-2 flex gap-2">
                     <button
                       onClick={() => handleDelete(elon._id)}

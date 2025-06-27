@@ -1,32 +1,46 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 
-const initialUser = {
-  name: "Ali Karimov",
-  gpa: 3.8,
-  direction: "Kompyuter injiniring",
-  course: "3-kurs",
-  email: "ali.karimov@example.com",
-  phone: "+998 90 123 45 67",
-  bio: "Dasturchi, IT entuziasti, Open Source faoli.",
+const defaultUser = {
+  name: "",
+  gpa: "",
+  direction: "",
+  course: "",
+  group: "",
+  phone: "",
+  bio: "",
   social: {
-    telegram: "https://t.me/alikarimov",
-    instagram: "https://instagram.com/alikarimov",
-    linkedin: "https://linkedin.com/in/alikarimov",
+    telegram: "",
+    instagram: "",
+    linkedin: "",
   },
-  achievements: [
-    "Frontend tanlovida 1-o‘rin",
-    "Open Source loyihaga hissa qo‘shgan",
-    "Hackathon 2024 finalchisi",
-  ],
+  achievements: [],
 };
 
 export default function ProfilePage() {
-  const [user, setUser] = useState(initialUser);
+  const [user, setUser] = useState(defaultUser);
+  const [formData, setFormData] = useState(defaultUser);
   const [showEdit, setShowEdit] = useState(false);
-  const [formData, setFormData] = useState(user);
+
+  // useEffect ichidagi fetchProfile
+  useEffect(() => {
+    async function fetchProfile() {
+      const res = await fetch("/api/profile", {
+        credentials: "include", // kerakli cookie'ni yuborish uchun
+      });
+
+      if (res.ok) {
+        const profile = await res.json();
+        setUser(profile);
+        setFormData(profile);
+      } else {
+        console.error("Profilni olishda xatolik");
+      }
+    }
+    fetchProfile();
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -43,27 +57,43 @@ export default function ProfilePage() {
     }
   };
 
-  const handleSubmit = (e) => {
+  // handleSubmit funksiyasi
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setUser(formData);
-    setShowEdit(false);
+    console.log("Yuborish boshlandi ✅");
+
+    const res = await fetch("/api/profile", {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(formData),
+      credentials: "include", // 🧠 tokenni yuboradi
+    });
+
+    if (res.ok) {
+      const updated = await res.json();
+      setUser(updated);
+      setFormData(updated);
+      setShowEdit(false);
+    } else {
+      alert("Xatolik yuz berdi, qayta urinib ko‘ring.");
+    }
   };
 
   return (
     <main className="min-h-screen bg-gray-50 p-6 relative">
       <div className="max-w-5xl mx-auto">
-        {/* Navigation */}
         <nav className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-gray-800">👤 Profilim</h1>
           <Link
             href="/"
-            className="px-4 py-2 text-sm bg-gray-800 text-white rounded hover:bg-gray-900 transition"
+            className="px-4 py-2 text-sm bg-gray-800 text-white rounded hover:bg-gray-900"
           >
             ← Bosh sahifaga
           </Link>
         </nav>
 
-        {/* Profile Card */}
         <section className="bg-white p-8 rounded-2xl shadow-lg border border-gray-300">
           <div className="flex flex-col sm:flex-row items-center gap-6 mb-8">
             <img
@@ -71,7 +101,7 @@ export default function ProfilePage() {
                 user.name
               )}`}
               alt="avatar"
-              className="w-28 h-28 rounded-full border-4 border-gray-400 hover:shadow-lg transition-shadow duration-300"
+              className="w-28 h-28 rounded-full border-4 border-gray-400"
             />
             <div className="text-center sm:text-left">
               <h2 className="text-3xl font-extrabold text-gray-900">
@@ -84,15 +114,14 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          {/* Contact Info */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8 text-center sm:text-left">
             <div className="bg-gray-100 p-4 rounded-xl">
               <p className="text-gray-500 text-sm">GPA</p>
               <p className="text-2xl font-bold text-gray-800">{user.gpa}</p>
             </div>
             <div className="bg-gray-100 p-4 rounded-xl">
-              <p className="text-gray-500 text-sm">Email</p>
-              <p className="text-gray-700">{user.email}</p>
+              <p className="text-gray-500 text-sm">Guruh</p>
+              <p className="text-gray-700">{user.group}</p>
             </div>
             <div className="bg-gray-100 p-4 rounded-xl">
               <p className="text-gray-500 text-sm">Telefon</p>
@@ -100,20 +129,12 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          {/* Social Links */}
           <div className="flex gap-6 justify-center sm:justify-start mb-8 text-gray-700">
-            <a href={user.social.telegram} target="_blank">
-              📨 Telegram
-            </a>
-            <a href={user.social.instagram} target="_blank">
-              📷 Instagram
-            </a>
-            <a href={user.social.linkedin} target="_blank">
-              🔗 LinkedIn
-            </a>
+            <a href={user.social.telegram}>📨 Telegram</a>
+            <a href={user.social.instagram}>📷 Instagram</a>
+            <a href={user.social.linkedin}>🔗 LinkedIn</a>
           </div>
 
-          {/* Achievements */}
           <div>
             <h2 className="text-2xl font-semibold text-gray-900 mb-4">
               🏆 Yutuqlar
@@ -125,11 +146,10 @@ export default function ProfilePage() {
             </ul>
           </div>
 
-          {/* Tahrirlash tugmasi */}
           <div className="mt-8 text-right">
             <button
               onClick={() => setShowEdit(true)}
-              className="px-5 py-3 bg-gray-800 text-white rounded hover:bg-gray-900 transition"
+              className="px-5 py-3 bg-gray-800 text-white rounded hover:bg-gray-900"
             >
               Profilni tahrirlash ✏️
             </button>
@@ -137,9 +157,8 @@ export default function ProfilePage() {
         </section>
       </div>
 
-      {/* Modal Form */}
       {showEdit && (
-        <div className="fixed inset-0  backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <form
             onSubmit={handleSubmit}
             className="bg-white p-6 rounded-xl shadow-xl w-full max-w-xl space-y-4"
@@ -178,10 +197,10 @@ export default function ProfilePage() {
                 className="border p-2 rounded"
               />
               <input
-                name="email"
-                value={formData.email}
+                name="group"
+                value={formData.group}
                 onChange={handleChange}
-                placeholder="Email"
+                placeholder="Guruh"
                 className="border p-2 rounded"
               />
               <input
@@ -224,6 +243,53 @@ export default function ProfilePage() {
                 placeholder="LinkedIn"
                 className="border p-2 rounded"
               />
+            </div>
+
+            <div>
+              <label className="font-semibold text-gray-700 block mb-1">
+                Yutuqlar
+              </label>
+              {formData.achievements.map((item, index) => (
+                <div
+                  key={index}
+                  className="flex items-center gap-2 mb-2 text-black"
+                >
+                  <input
+                    type="text"
+                    value={item}
+                    onChange={(e) => {
+                      const updated = [...formData.achievements];
+                      updated[index] = e.target.value;
+                      setFormData({ ...formData, achievements: updated });
+                    }}
+                    className="flex-1 border p-2 rounded"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const updated = formData.achievements.filter(
+                        (_, i) => i !== index
+                      );
+                      setFormData({ ...formData, achievements: updated });
+                    }}
+                    className="text-red-600 font-bold text-xl"
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
+              <button
+                type="button"
+                onClick={() =>
+                  setFormData({
+                    ...formData,
+                    achievements: [...formData.achievements, ""],
+                  })
+                }
+                className="mt-2 px-3 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 text-sm"
+              >
+                ➕ Yutuq qo‘shish
+              </button>
             </div>
 
             <div className="flex justify-between pt-4">

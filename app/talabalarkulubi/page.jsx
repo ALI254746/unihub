@@ -1,39 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
-
-const clubs = [
-  {
-    id: "dasturchilar",
-    name: "Dasturchilar Klubi",
-    description: "Frontend, backend va mobil dasturlashni o‘rganamiz.",
-    members: 52,
-    leader: "Shahzod Mamatqulov",
-    interests: ["React", "Node.js", "Hackathon"],
-  },
-  {
-    id: "robototexnika",
-    name: "Robototexnika Klubi",
-    description: "Arduino, IoT va avtomatlashtirish bo‘yicha ishlaymiz.",
-    members: 34,
-    leader: "Dilrabo Umarova",
-    interests: ["Arduino", "C++", "Sensor tizimlar"],
-  },
-  {
-    id: "suniy-intellekt",
-    name: "Sun'iy Intellekt Klubi",
-    description: "AI va ML sohalarida loyihalar va seminarlar o'tamiz.",
-    members: 41,
-    leader: "Sardor Usmonov",
-    interests: ["AI", "Python", "Data Science"],
-  },
-];
+import { Toaster, toast } from "react-hot-toast"; // ✅ Toaster va toast ni to‘g‘ri import qilish
 
 export default function ClubsPage() {
+  const [clubs, setClubs] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [openFormClub, setOpenFormClub] = useState(null);
-
   const [form, setForm] = useState({
     firstName: "",
     lastName: "",
@@ -42,13 +16,78 @@ export default function ClubsPage() {
     phone: "",
     reason: "",
   });
-
-  const handleFormChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+  const validateForm = () => {
+    for (const [key, value] of Object.entries(form)) {
+      if (!value.trim()) {
+        const fieldNames = {
+          firstName: "Ismingiz",
+          lastName: "Familiyangiz",
+          direction: "Yo‘nalish",
+          course: "Kurs",
+          phone: "Telefon raqami",
+          reason: "Sabab",
+        };
+        toast.error(`${fieldNames[key]} kiritilmagan!`);
+        return false;
+      }
+    }
+    return true;
   };
 
-  const handleJoin = () => {
-    console.log("Jo‘natilmoqda:", form);
+  useEffect(() => {
+    const fetchClubs = async () => {
+      try {
+        const res = await fetch("/api/clubs");
+        if (res.ok) {
+          const result = await res.json();
+          setClubs(result.data);
+        } else {
+          console.error("Clublarni olishda xatolik:", res.statusText);
+        }
+      } catch (error) {
+        console.error("Tarmoq xatosi:", error.message);
+      }
+    };
+
+    fetchClubs();
+  }, []);
+
+  const handleJoin = async () => {
+    if (!validateForm()) return; // ❗️Agar forma noto‘g‘ri bo‘lsa, davom etmaydi
+    try {
+      const dataToSend = {
+        clubId: openFormClub._id,
+        clubName: openFormClub.name,
+        firstName: form.firstName,
+        lastName: form.lastName,
+        direction: form.direction,
+        course: form.course,
+        phone: form.phone,
+        reason: form.reason,
+      };
+
+      const res = await fetch("/api/clubJoinrequest", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include", // 🍪 token cookies orqali uzatilgani uchun
+        body: JSON.stringify(dataToSend),
+      });
+
+      if (res.ok) {
+        toast.success("✅ Klubga qo‘shilish so‘rovi yuborildi");
+        console.log("✅ Klubga qo‘shilish so‘rovi yuborildi");
+      } else {
+        toast.error("❌ Xatolik: " + errText);
+        const errText = await res.text();
+        console.error("❌ Xatolik:", errText);
+      }
+    } catch (err) {
+      toast.error("🔌 Tarmoq xatoligi: " + err.message);
+      console.error("So‘rov xatoligi:", err.message);
+    }
+
     setOpenFormClub(null);
     setForm({
       firstName: "",
@@ -60,17 +99,47 @@ export default function ClubsPage() {
     });
   };
 
+  const handleFormChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
   const filteredClubs = clubs.filter(
     (club) =>
-      club.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      club.description.toLowerCase().includes(searchTerm.toLowerCase())
+      club.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      club.description?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
     <main className="min-h-screen bg-yellow-50 p-4 sm:p-6 relative">
-      {/* Form Modal */}
+      <Toaster
+        position="top-center" // Ekran markaziga yaqinroq chiqadi
+        reverseOrder={false}
+        toastOptions={{
+          style: {
+            background: "#fef3c7", // och sariq
+            color: "#92400e", // chuqur to'q sariq matn
+            border: "1px solid #facc15", // sariq ramka
+            padding: "12px 20px",
+            fontSize: "16px",
+            fontWeight: "500",
+            borderRadius: "12px",
+          },
+          success: {
+            iconTheme: {
+              primary: "#22c55e", // yashil belgi
+              secondary: "#ecfdf5",
+            },
+          },
+          error: {
+            iconTheme: {
+              primary: "#ef4444", // qizil belgi
+              secondary: "#fee2e2",
+            },
+          },
+        }}
+      />
       {openFormClub && (
-        <div className="fixed inset-0  backdrop-blur-sm flex justify-center items-center z-50">
+        <div className="fixed inset-0 backdrop-blur-sm flex justify-center items-center z-50">
           <div className="bg-white rounded-xl p-6 w-full max-w-lg space-y-4 shadow-lg">
             <h2 className="text-xl font-bold text-yellow-700">
               📝 {openFormClub.name} klubiga qo‘shilish
@@ -78,16 +147,16 @@ export default function ClubsPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <input
                 type="text"
-                placeholder="Ism"
                 name="firstName"
+                placeholder="Ism"
                 value={form.firstName}
                 onChange={handleFormChange}
                 className="p-2 border rounded text-black"
               />
               <input
                 type="text"
-                placeholder="Familiya"
                 name="lastName"
+                placeholder="Familiya"
                 value={form.lastName}
                 onChange={handleFormChange}
                 className="p-2 border rounded text-black"
@@ -117,15 +186,15 @@ export default function ClubsPage() {
               </select>
               <input
                 type="text"
-                placeholder="Telefon raqami"
                 name="phone"
+                placeholder="Telefon raqami"
                 value={form.phone}
                 onChange={handleFormChange}
                 className="p-2 border rounded text-black col-span-2"
               />
               <textarea
-                placeholder="Nega bu klubga qo‘shilmoqchisiz?"
                 name="reason"
+                placeholder="Nega bu klubga qo‘shilmoqchisiz?"
                 value={form.reason}
                 onChange={handleFormChange}
                 className="p-2 border rounded text-black col-span-2"
@@ -150,12 +219,11 @@ export default function ClubsPage() {
         </div>
       )}
 
-      {/* Main content */}
       <div className="max-w-5xl mx-auto relative z-10">
-        <div className="mb-6 flex justify-start">
+        <div className="mb-6">
           <Link
             href="/"
-            className="px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700 transition"
+            className="px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700"
           >
             ← Bosh sahifaga
           </Link>
@@ -169,22 +237,21 @@ export default function ClubsPage() {
           <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
             <input
               type="text"
-              placeholder="Klub nomi yoki tavsifi bo'yicha qidirish..."
+              placeholder="Klub nomi yoki tavsifi bo‘yicha qidirish..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="flex-1 px-4 py-2 border border-yellow-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 text-black"
             />
-
             <Link
               href="/clubyaratish"
-              className="px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700 transition whitespace-nowrap"
+              className="px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700 whitespace-nowrap"
             >
               ➕ Klub ochish
             </Link>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {filteredClubs.length === 0 ? (
             <p className="text-center text-yellow-900 font-semibold col-span-full">
               Qidiruv natijasi topilmadi.
@@ -192,7 +259,7 @@ export default function ClubsPage() {
           ) : (
             filteredClubs.map((club) => (
               <div
-                key={club.id}
+                key={club._id}
                 className="bg-white p-6 rounded-2xl shadow border border-yellow-200 flex flex-col"
               >
                 <h2 className="text-2xl font-semibold text-yellow-700 mb-2">
@@ -202,24 +269,24 @@ export default function ClubsPage() {
                   {club.description}
                 </p>
                 <p className="text-sm text-gray-500 mb-1">
-                  👤 Yetakchi: {club.leader}
+                  👤 Yetakchi: {club.fullname || "Noma’lum"}
                 </p>
                 <p className="text-sm text-gray-500 mb-1">
-                  👥 A’zolar: {club.members} ta
+                  👥 A’zolar: {club.members?.length || 0} ta
                 </p>
                 <p className="text-sm text-gray-500 mb-4">
-                  🎯 Qiziqishlar: {club.interests.join(", ")}
+                  🎯 Qiziqishlar: {club.interest || "–"}
                 </p>
                 <div className="mt-4 flex gap-3">
                   <button
                     onClick={() => setOpenFormClub(club)}
-                    className="px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700 transition"
+                    className="px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700"
                   >
                     Klubga qo‘shilish
                   </button>
                   <Link
-                    href={`/clubdetail/${club.id}`}
-                    className="px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700 transition inline-block text-center"
+                    href={`/clubdetail/${club._id}`}
+                    className="px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700 text-center"
                   >
                     Klubni Ko‘rish
                   </Link>

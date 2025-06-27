@@ -1,76 +1,37 @@
 "use client";
-import { useState } from "react";
-
-// Ko‘p klubli mock ma'lumot
-const mockClubs = [
-  {
-    id: "dasturchilar",
-    name: "Dasturchilar Klubi",
-    description: "Frontend, backend va mobil dasturlashni o‘rganamiz.",
-    interests: ["React", "Node.js", "Hackathon"],
-    members: [
-      { id: "1", name: "Shahzod Mamatqulov" },
-      { id: "2", name: "Ali Karimov" },
-    ],
-    pendingRequests: [
-      { id: "3", name: "Dilshod Qodirov" },
-      { id: "4", name: "Madina Saidova" },
-    ],
-  },
-  {
-    id: "robototexnika",
-    name: "Robototexnika Klubi",
-    description: "Arduino, IoT va avtomatlashtirish bo‘yicha ishlaymiz.",
-    interests: ["Arduino", "C++", "Sensor tizimlar"],
-    members: [{ id: "5", name: "Lola Tursunova" }],
-    pendingRequests: [],
-  },
-];
+import { useEffect, useState } from "react";
 
 export default function MyClubPage() {
-  const [clubs, setClubs] = useState(mockClubs);
+  const [clubs, setClubs] = useState([]);
 
-  const acceptRequest = (clubId, userId) => {
-    setClubs((prev) =>
-      prev.map((club) => {
-        if (club.id !== clubId) return club;
+  useEffect(() => {
+    const fetchMyClubRequests = async () => {
+      try {
+        const res = await fetch("/api/myclubs/requests", {
+          credentials: "include",
+        });
+        const data = await res.json();
+        if (res.ok) {
+          setClubs(data.data); // data.data bu [klublar]
+        } else {
+          console.error("❌ Xatolik:", data.message);
+        }
+      } catch (err) {
+        console.error("🔌 Tarmoq xatoligi:", err.message);
+      }
+    };
 
-        const accepted = club.pendingRequests.find((u) => u.id === userId);
-        return {
-          ...club,
-          pendingRequests: club.pendingRequests.filter((u) => u.id !== userId),
-          members: [...club.members, accepted],
-        };
-      })
-    );
+    fetchMyClubRequests();
+  }, []);
+
+  const acceptRequest = (clubId, requestId) => {
+    // ❗ Bu yerda API chaqiruv bo'lishi kerak
+    console.log("✅ Qabul qilindi", clubId, requestId);
   };
 
-  const rejectRequest = (clubId, userId) => {
-    setClubs((prev) =>
-      prev.map((club) =>
-        club.id === clubId
-          ? {
-              ...club,
-              pendingRequests: club.pendingRequests.filter(
-                (u) => u.id !== userId
-              ),
-            }
-          : club
-      )
-    );
-  };
-
-  const removeMember = (clubId, userId) => {
-    setClubs((prev) =>
-      prev.map((club) =>
-        club.id === clubId
-          ? {
-              ...club,
-              members: club.members.filter((u) => u.id !== userId),
-            }
-          : club
-      )
-    );
+  const rejectRequest = (clubId, requestId) => {
+    // ❗ Bu yerda API chaqiruv bo'lishi kerak
+    console.log("❌ Rad etildi", clubId, requestId);
   };
 
   return (
@@ -79,85 +40,67 @@ export default function MyClubPage() {
         🏗 Mening Klublarim
       </h1>
 
-      {clubs.map((club) => (
-        <div
-          key={club.id}
-          className="bg-white rounded-2xl shadow p-6 space-y-6 border border-yellow-200"
-        >
-          {/* Club Info */}
-          <div>
-            <h2 className="text-2xl font-semibold text-yellow-800">
-              {club.name}
-            </h2>
-            <p className="text-gray-700">{club.description}</p>
-            <p className="text-sm mt-1 text-gray-500">
-              🎯 Qiziqishlar: {club.interests.join(", ")}
-            </p>
-          </div>
+      {clubs.length === 0 ? (
+        <p className="text-gray-600 text-center">
+          Siz yaratgan klub yoki so‘rov yo‘q.
+        </p>
+      ) : (
+        clubs.map((club) => (
+          <div
+            key={club._id}
+            className="bg-white rounded-2xl shadow p-6 space-y-6 border border-yellow-200"
+          >
+            <div>
+              <h2 className="text-2xl font-semibold text-yellow-800">
+                {club.name}
+              </h2>
+              <p className="text-gray-700">{club.description}</p>
+              <p className="text-sm mt-1 text-gray-500">
+                🎯 Qiziqishlar: {club.interests || "–"}
+              </p>
+            </div>
 
-          {/* Pending Requests */}
-          <div>
-            <h3 className="text-lg font-semibold text-yellow-700 mb-2">
-              ⏳ A’zolik so‘rovlari
-            </h3>
-            {club.pendingRequests.length === 0 ? (
-              <p className="text-gray-500">So‘rovlar yo‘q.</p>
-            ) : (
-              <ul className="space-y-2">
-                {club.pendingRequests.map((user) => (
-                  <li
-                    key={user.id}
-                    className="flex justify-between items-center bg-yellow-100 px-4 py-2 rounded-lg text-black"
-                  >
-                    <span>{user.name}</span>
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => acceptRequest(club.id, user.id)}
-                        className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700"
-                      >
-                        ✅ Qabul qilish
-                      </button>
-                      <button
-                        onClick={() => rejectRequest(club.id, user.id)}
-                        className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
-                      >
-                        ❌ Rad etish
-                      </button>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-
-          {/* Members */}
-          <div>
-            <h3 className="text-lg font-semibold text-yellow-700 mb-2">
-              👥 A’zolar
-            </h3>
-            {club.members.length === 0 ? (
-              <p className="text-gray-500">A’zolar yo‘q.</p>
-            ) : (
-              <ul className="space-y-2">
-                {club.members.map((member) => (
-                  <li
-                    key={member.id}
-                    className="flex justify-between items-center bg-yellow-50 px-4 py-2 rounded-lg border border-yellow-200 text-black"
-                  >
-                    <span>{member.name}</span>
-                    <button
-                      onClick={() => removeMember(club.id, member.id)}
-                      className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 text-sm"
+            <div>
+              <h3 className="text-lg font-semibold text-yellow-700 mb-2">
+                ⏳ A’zolik so‘rovlari
+              </h3>
+              {club.pendingRequests.length === 0 ? (
+                <p className="text-gray-500">So‘rovlar yo‘q.</p>
+              ) : (
+                <ul className="space-y-2">
+                  {club.pendingRequests.map((user) => (
+                    <li
+                      key={user._id}
+                      className="flex justify-between items-center bg-yellow-100 px-4 py-2 rounded-lg text-black"
                     >
-                      🗑 Chiqarish
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            )}
+                      <div>
+                        <p className="font-medium">
+                          {user.firstName} {user.lastName}
+                        </p>
+                        <p className="text-sm text-gray-600">{user.reason}</p>
+                      </div>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => acceptRequest(club._id, user._id)}
+                          className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700"
+                        >
+                          ✅ Qabul qilish
+                        </button>
+                        <button
+                          onClick={() => rejectRequest(club._id, user._id)}
+                          className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
+                        >
+                          ❌ Rad etish
+                        </button>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
           </div>
-        </div>
-      ))}
+        ))
+      )}
     </main>
   );
 }
