@@ -5,7 +5,7 @@ import Link from "next/link";
 
 const defaultUser = {
   name: "",
-  gpa: "",
+  surname: "",
   direction: "",
   course: "",
   group: "",
@@ -24,13 +24,9 @@ export default function ProfilePage() {
   const [formData, setFormData] = useState(defaultUser);
   const [showEdit, setShowEdit] = useState(false);
 
-  // useEffect ichidagi fetchProfile
   useEffect(() => {
     async function fetchProfile() {
-      const res = await fetch("/api/profile", {
-        credentials: "include", // kerakli cookie'ni yuborish uchun
-      });
-
+      const res = await fetch("/api/profile", { credentials: "include" });
       if (res.ok) {
         const profile = await res.json();
         setUser(profile);
@@ -44,31 +40,43 @@ export default function ProfilePage() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+
     if (["telegram", "instagram", "linkedin"].includes(name)) {
-      setFormData({
-        ...formData,
-        social: {
-          ...formData.social,
-          [name]: value,
-        },
-      });
+      setFormData((prev) => ({
+        ...prev,
+        social: { ...prev.social, [name]: value },
+      }));
     } else {
-      setFormData({ ...formData, [name]: value });
+      setFormData((prev) => ({ ...prev, [name]: value }));
     }
   };
 
-  // handleSubmit funksiyasi
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Yuborish boshlandi ✅");
+
+    const requiredFields = [
+      "name",
+      "surname",
+      "direction",
+      "course",
+      "group",
+      "phone",
+    ];
+    const emptyFields = requiredFields.filter((field) => !formData[field]);
+    if (emptyFields.length > 0) {
+      alert(
+        `Iltimos, quyidagi maydonlarni to‘ldiring:\n- ${emptyFields.join(
+          "\n- "
+        )}`
+      );
+      return;
+    }
 
     const res = await fetch("/api/profile", {
       method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(formData),
-      credentials: "include", // 🧠 tokenni yuboradi
+      credentials: "include",
     });
 
     if (res.ok) {
@@ -105,7 +113,7 @@ export default function ProfilePage() {
             />
             <div className="text-center sm:text-left">
               <h2 className="text-3xl font-extrabold text-gray-900">
-                {user.name}
+                {user.name} {user.surname}
               </h2>
               <p className="text-gray-600 mt-1">
                 {user.direction} · {user.course}
@@ -115,10 +123,6 @@ export default function ProfilePage() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8 text-center sm:text-left">
-            <div className="bg-gray-100 p-4 rounded-xl">
-              <p className="text-gray-500 text-sm">GPA</p>
-              <p className="text-2xl font-bold text-gray-800">{user.gpa}</p>
-            </div>
             <div className="bg-gray-100 p-4 rounded-xl">
               <p className="text-gray-500 text-sm">Guruh</p>
               <p className="text-gray-700">{user.group}</p>
@@ -130,9 +134,45 @@ export default function ProfilePage() {
           </div>
 
           <div className="flex gap-6 justify-center sm:justify-start mb-8 text-gray-700">
-            <a href={user.social.telegram}>📨 Telegram</a>
-            <a href={user.social.instagram}>📷 Instagram</a>
-            <a href={user.social.linkedin}>🔗 LinkedIn</a>
+            <a
+              href={
+                user.social.telegram
+                  ? `https://t.me/${user.social.telegram.replace(/^@/, "")}`
+                  : "#"
+              }
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              📨 Telegram
+            </a>
+            <a
+              href={
+                user.social.instagram
+                  ? `https://instagram.com/${user.social.instagram.replace(
+                      /^@/,
+                      ""
+                    )}`
+                  : "#"
+              }
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              📷 Instagram
+            </a>
+            <a
+              href={
+                user.social.linkedin
+                  ? `https://linkedin.com/in/${user.social.linkedin.replace(
+                      /^@/,
+                      ""
+                    )}`
+                  : "#"
+              }
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              🔗 LinkedIn
+            </a>
           </div>
 
           <div>
@@ -176,26 +216,36 @@ export default function ProfilePage() {
                 className="border p-2 rounded"
               />
               <input
-                name="gpa"
-                value={formData.gpa}
+                name="surname"
+                value={formData.surname}
                 onChange={handleChange}
-                placeholder="GPA"
+                placeholder="Familya"
                 className="border p-2 rounded"
               />
-              <input
+              <select
                 name="direction"
                 value={formData.direction}
                 onChange={handleChange}
-                placeholder="Yo‘nalish"
-                className="border p-2 rounded"
-              />
-              <input
+                className="p-2 border rounded text-black"
+              >
+                <option value="">Yo‘nalish tanlang</option>
+                <option>Axborot texnologiyalari</option>
+                <option>Kompyuter ilmlari</option>
+                <option>Sun’iy intellekt</option>
+              </select>
+              <select
                 name="course"
                 value={formData.course}
                 onChange={handleChange}
-                placeholder="Kurs"
-                className="border p-2 rounded"
-              />
+                className="p-2 border rounded text-black"
+              >
+                <option value="">Kursni tanlang</option>
+                <option>1-kurs</option>
+                <option>2-kurs</option>
+                <option>3-kurs</option>
+                <option>4-kurs</option>
+              </select>
+
               <input
                 name="group"
                 value={formData.group}

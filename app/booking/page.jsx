@@ -3,7 +3,7 @@
 import { useState } from "react";
 import BookingLibrary from "./components/BookingLibrary";
 import BookingSport from "./components/BookingSport";
-import Link from "next/link";
+import CoustomLink from "../components/LoadingOverlay"; // Importing custom link component
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 
@@ -17,26 +17,12 @@ export default function BookingPage() {
         <div className="max-w-4xl mx-auto space-y-6">
           {/* Bosh sahifaga qaytish */}
           <div>
-            <Link
+            <CoustomLink
               href="/"
-              className="inline-flex items-center gap-2 px-4 py-2 bg-white text-indigo-600 border border-indigo-200 rounded-full shadow-sm hover:bg-indigo-100 transition-all duration-200"
+              className="px-4 py-2 text-sm bg-green-600 text-white rounded hover:bg-green-700"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-4 w-4"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={2}
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M15 19l-7-7 7-7"
-                />
-              </svg>
-              Bosh sahifaga
-            </Link>
+              ← Bosh sahifaga
+            </CoustomLink>
           </div>
 
           {/* Title */}

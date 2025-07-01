@@ -1,12 +1,28 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import Link from "next/link";
+import { useEffect, useRef, useState, useLayoutEffect } from "react";
+import CustomLink from "../components/LoadingOverlay";
+import { gsap } from "gsap";
 
 export default function AnnouncementsPage() {
   const [elonlar, setElonlar] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
+  const titleRef = useRef(null); // 🔵 Sarlavha uchun ref
+
+  useLayoutEffect(() => {
+    let ctx = gsap.context(() => {
+      gsap.from(titleRef.current, {
+        y: -150,
+        opacity: 0,
+        ease: "bounce.out",
+        duration: 1.5,
+      });
+    });
+
+    return () => ctx.revert(); // cleanup
+  }, []);
 
   useEffect(() => {
     const fetchElonlar = async () => {
@@ -56,29 +72,35 @@ export default function AnnouncementsPage() {
     if (hours < 24) return `${hours} soat oldin`;
     if (days < 7) return `${days} kun oldin`;
 
-    return date.toLocaleDateString("uz-UZ"); // Masalan: 26.06.2025
+    return date.toLocaleDateString("uz-UZ");
   };
 
   return (
     <main className="min-h-screen bg-gray-50 p-6 text-black">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-blue-700">📢 E'lonlar</h1>
-        <Link
+        <h1 ref={titleRef} className="text-3xl font-bold text-blue-700">
+          📢 E'lonlar
+        </h1>
+        <CustomLink
           href="/"
           className="px-4 py-2 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
         >
           ← Bosh sahifaga
-        </Link>
+        </CustomLink>
       </div>
 
       {loading ? (
-        <p className="text-gray-600">⏳ Yuklanmoqda...</p>
+        <div className="flex items-center justify-center min-h-[40vh]">
+          <p className="text-gray-600 text-xl animate-pulse">
+            ⏳ Yuklanmoqda...
+          </p>
+        </div>
       ) : error ? (
         <p className="text-red-600">{error}</p>
       ) : elonlar.length === 0 ? (
         <p className="text-gray-500">Hozircha e’lon yo‘q.</p>
       ) : (
-        <ul className="space-y-4">
+        <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-3 gap-4">
           {elonlar.map((elon) => (
             <li
               key={elon._id}
@@ -88,9 +110,13 @@ export default function AnnouncementsPage() {
                 <span className="text-lg">
                   {getCategoryIcon(elon.category)}
                 </span>
-                <h2>{elon.title}</h2>
+                <h2 className="text-base font-semibold truncate">
+                  {elon.title}
+                </h2>
               </div>
-              <p className="text-sm text-gray-700 mt-1">{elon.description}</p>
+              <p className="text-sm text-gray-700 mt-1 line-clamp-2">
+                {elon.description}
+              </p>
               <div className="text-xs text-gray-500 mt-1">
                 🏷 {elon.category} | 🕒 {getTimeAgo(elon.createdAt)}
               </div>

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import CustomLink from "../components/LoadingOverlay";
 const initialIssues = [
   {
     title: "Yotoqxonada Wi-Fi ishlamayapti",
@@ -54,12 +55,12 @@ export default function IssuesPage() {
           🚨 Talabalar Muammolari
         </h1>
         <div className="mb-6 flex justify-start">
-          <Link
+          <CustomLink
             href="/"
             className="px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700 transition"
           >
             ← Bosh sahifaga
-          </Link>
+          </CustomLink>
         </div>
         {/* Muammo qo‘shish formasi */}
         <form

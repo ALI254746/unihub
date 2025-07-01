@@ -8,7 +8,11 @@ const clubJoinSchema = new mongoose.Schema(
     course: { type: String, required: true },
     phone: { type: String, required: true },
     reason: { type: String, required: true },
-    clubId: { type: String, required: true },
+    clubId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Club",
+      required: true,
+    },
     clubName: { type: String, required: true },
     userId: {
       type: mongoose.Schema.Types.ObjectId,

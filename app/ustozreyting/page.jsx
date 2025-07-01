@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { FaStar } from "react-icons/fa";
 import Link from "next/link";
-
+import CustomLink from "../components/LoadingOverlay";
 const mockTeachers = [
   {
     id: "t1",
@@ -97,12 +97,12 @@ export default function TeacherRatingsPage() {
           <h1 className="text-3xl font-bold text-gray-800">
             🏆 Ustozlar Reytingi
           </h1>
-          <Link
+          <CustomLink
             href="/"
             className="bg-gray-800 text-white px-4 py-2 rounded hover:bg-gray-900"
           >
             ← Bosh sahifaga
-          </Link>
+          </CustomLink>
         </div>
 
         {/* 🔍 Qidiruv + Filter */}

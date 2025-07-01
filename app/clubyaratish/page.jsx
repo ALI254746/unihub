@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import Link from "next/link";
+import CustomLink from "@/app/components/LoadingOverlay"; // Importing custom link component
 
 export default function CreateClubPage() {
   const [form, setForm] = useState({
@@ -42,12 +42,12 @@ export default function CreateClubPage() {
           <h1 className="text-2xl font-bold text-yellow-700">
             🏗 Klub ochish so‘rovi
           </h1>
-          <Link
+          <CustomLink
             href="/talabalarkulubi"
             className="text-sm text-yellow-600 hover:underline"
           >
             ← Talaba klublariga qaytish
-          </Link>
+          </CustomLink>
         </div>
 
         {message && (

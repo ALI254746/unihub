@@ -3,16 +3,17 @@ import User from "@/models/User";
 import jwt from "jsonwebtoken";
 import { cookies } from "next/headers";
 import bcrypt from "bcryptjs";
-
 export async function POST(req) {
-  const cookieStore = await cookies();
+  const cookieStore = await cookies(); // faqat `cookies()` deb yozish kifoya
 
   try {
-    const { email, password } = await req.json();
+    const { email, password, firstName, lastName, faculty, course } =
+      await req.json();
 
-    if (!email || !password) {
+    // 🔐 Bo‘sh maydonlarni tekshirish
+    if (!email || !password || !firstName || !lastName || !faculty || !course) {
       return Response.json(
-        { message: "Email va parol kerak" },
+        { message: "Barcha maydonlarni to‘ldiring!" },
         { status: 400 }
       );
     }
@@ -29,13 +30,22 @@ export async function POST(req) {
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return Response.json(
-        { message: "Bu Email Allaqachon Mavjud" },
+        { message: "Bu Email allaqachon mavjud" },
         { status: 409 }
       );
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = new User({ email, password: hashedPassword });
+
+    const newUser = new User({
+      email,
+      password: hashedPassword,
+      firstName,
+      lastName,
+      faculty,
+      course,
+    });
+
     await newUser.save();
 
     const token = jwt.sign(

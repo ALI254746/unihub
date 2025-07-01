@@ -1,8 +1,10 @@
 "use client";
+
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Toaster, toast } from "react-hot-toast";
-import CustomLink from "../components/LoadingOverlay"; // Importing custom link component
+import CustomLink from "../../components/LoadingOverlay";
+
 export default function ClubsPage() {
   const [clubs, setClubs] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -16,25 +18,30 @@ export default function ClubsPage() {
     reason: "",
   });
   const [loading, setLoading] = useState(true);
+  const [profile, setProfile] = useState(null);
+  const [profileLoading, setProfileLoading] = useState(true);
 
-  const validateForm = () => {
-    for (const [key, value] of Object.entries(form)) {
-      if (!value.trim()) {
-        const fieldNames = {
-          firstName: "Ismingiz",
-          lastName: "Familiyangiz",
-          direction: "Yo‘nalish",
-          course: "Kurs",
-          phone: "Telefon raqami",
-          reason: "Sabab",
-        };
-        toast.error(`${fieldNames[key]} kiritilmagan!`);
-        return false;
+  // Profilni olish
+  useEffect(() => {
+    async function fetchProfile() {
+      try {
+        const res = await fetch("/api/profile", { credentials: "include" });
+        if (res.ok) {
+          const data = await res.json();
+          setProfile(data);
+        } else {
+          setProfile(null);
+        }
+      } catch (error) {
+        setProfile(null);
+      } finally {
+        setProfileLoading(false);
       }
     }
-    return true;
-  };
+    fetchProfile();
+  }, []);
 
+  // Klublarni olish
   useEffect(() => {
     const fetchClubs = async () => {
       setLoading(true);
@@ -55,6 +62,25 @@ export default function ClubsPage() {
 
     fetchClubs();
   }, []);
+
+  // Form validatsiyasi
+  const validateForm = () => {
+    for (const [key, value] of Object.entries(form)) {
+      if (!value.trim()) {
+        const fieldNames = {
+          firstName: "Ismingiz",
+          lastName: "Familiyangiz",
+          direction: "Yo‘nalish",
+          course: "Kurs",
+          phone: "Telefon raqami",
+          reason: "Sabab",
+        };
+        toast.error(`${fieldNames[key]} kiritilmagan!`);
+        return false;
+      }
+    }
+    return true;
+  };
 
   const handleJoin = async () => {
     if (!validateForm()) return;
@@ -111,9 +137,36 @@ export default function ClubsPage() {
       club.description?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  if (profileLoading) {
+    return <p>Profil yuklanmoqda...</p>;
+  }
+
+  // Profil mavjud va to'liq emas (masalan, name yoki surname bo'sh bo'lsa)
+  const profileIsIncomplete =
+    !profile ||
+    !profile.name ||
+    !profile.surname ||
+    !profile.direction ||
+    !profile.course ||
+    !profile.phone;
+
   return (
     <main className="min-h-screen bg-yellow-50 p-4 sm:p-6 relative">
       <Toaster position="top-center" reverseOrder={false} />
+
+      {/* Agar profil to'liq bo'lmasa, foydalanuvchini profilni to'ldirishga yo'naltiring */}
+      {profileIsIncomplete && (
+        <div className="max-w-xl mx-auto p-4 bg-yellow-100 border border-yellow-400 rounded mb-6 text-yellow-900 text-center">
+          <p>
+            Klubga qo‘shilish yoki ochish uchun <b>profil ma'lumotlaringizni</b>{" "}
+            to‘liq to‘ldirishingiz kerak. Iltimos,{" "}
+            <CustomLink href="/profile/profileedit" className="underline">
+              bu yerga
+            </CustomLink>{" "}
+            o'ting va ma'lumotlaringizni kiriting.
+          </p>
+        </div>
+      )}
 
       {openFormClub && (
         <div className="fixed inset-0 backdrop-blur-sm flex justify-center items-center z-50">
@@ -218,12 +271,14 @@ export default function ClubsPage() {
               onChange={(e) => setSearchTerm(e.target.value)}
               className="flex-1 px-4 py-2 border border-yellow-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 text-black"
             />
-            <CustomLink
-              href="/clubyaratish"
-              className="px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700 whitespace-nowrap"
-            >
-              ➕ Klub ochish
-            </CustomLink>
+            {!profileIsIncomplete && (
+              <CustomLink
+                href="/clubyaratish"
+                className="px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700 whitespace-nowrap"
+              >
+                ➕ Klub ochish
+              </CustomLink>
+            )}
           </div>
         </div>
 
@@ -261,7 +316,12 @@ export default function ClubsPage() {
                 <div className="mt-4 flex gap-3">
                   <button
                     onClick={() => setOpenFormClub(club)}
-                    className="px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700"
+                    disabled={profileIsIncomplete} // profil to'liq bo'lmasa buttonni o'chirish
+                    className={`px-4 py-2 rounded text-white ${
+                      profileIsIncomplete
+                        ? "bg-gray-400 cursor-not-allowed"
+                        : "bg-yellow-600 hover:bg-yellow-700"
+                    }`}
                   >
                     Klubga qo‘shilish
                   </button>

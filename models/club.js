@@ -14,8 +14,17 @@ const clubSchema = new mongoose.Schema(
     },
     members: [
       {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
+        user: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User",
+          required: true,
+        },
+        firstName: { type: String, required: true },
+        lastName: { type: String, required: true },
+        direction: { type: String, required: true },
+        course: { type: String, required: true },
+        phone: { type: String, required: true },
+        joinedAt: { type: Date, default: Date.now }, // 🕒 A’zo bo‘lgan vaqt
       },
     ],
   },

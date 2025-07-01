@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link"; // 👈 Link import qilindi
-
+import CoustomLink from "../components/LoadingOverlay"; // 👈 CustomLink import qilindi
 const allStaff = [
   {
     id: 1,
@@ -56,6 +56,12 @@ export default function StaffPage() {
         <h1 className="text-3xl font-bold text-orange-800 mb-6">
           📋 Boshqaruv xodimlari
         </h1>
+        <CoustomLink
+          href="/"
+          className="mb-1 px-4 py-2 text-sm bg-green-600 text-white rounded hover:bg-green-700"
+        >
+          ← Bosh sahifaga
+        </CoustomLink>
 
         <div className="flex flex-col sm:flex-row items-center gap-4 mb-6">
           <input

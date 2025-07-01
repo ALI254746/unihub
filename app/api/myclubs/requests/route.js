@@ -33,8 +33,8 @@ export async function GET() {
       clubs.map(async (club) => {
         console.log("🔍 Tekshiruv clubId:", club._id.toString());
         const requests = await ClubJoinRequest.find({
-          clubId: club._id.toString(),
-          ownerId: new mongoose.Types.ObjectId(userId),
+          clubId: club._id,
+          ownerId: userId,
         });
         console.log(
           `🔍 Club: ${club.name} (${club._id}) uchun so‘rovlar topildi:`,

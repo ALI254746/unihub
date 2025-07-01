@@ -1,7 +1,7 @@
 // app/chat/page.tsx
 "use client";
 import { useState } from "react";
-
+import CustomLink from "../components/LoadingOverlay"; // Importing custom link component
 const sampleUsers = [
   {
     name: "Diyor Mahmudov",
@@ -57,12 +57,12 @@ export default function ChatPage() {
         <h1 className="text-2xl md:text-3xl font-bold text-indigo-700">
           🎥 Video Chat Format
         </h1>
-        <a
+        <CustomLink
           href="/"
           className="px-4 py-2 text-sm bg-indigo-600 text-white rounded hover:bg-indigo-700"
         >
           ← Bosh sahifaga
-        </a>
+        </CustomLink>
       </div>
 
       <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6 mb-6 px-2">

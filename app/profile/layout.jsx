@@ -7,7 +7,7 @@ import { Menu, X } from "lucide-react"; // Heroicons yoki lucide dan foydalanish
 
 const navItems = [
   { href: "/profile", label: "📄 Profilim" },
-  { href: "/profile/myclub", label: "🏗 Mening Klubim" },
+  { href: "/profile/myclub/clubjoinrequest", label: "🏗 Mening Klubim" },
   { href: "/profile/friends", label: "🤝 Do‘stlar" },
   { href: "/profile/achievements", label: "🏆 Yutuqlar" },
   { href: "/profile/profileedit", label: "✏️ Profilni tahrirlash" },
