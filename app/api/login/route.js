@@ -3,9 +3,10 @@ import User from "@/models/User";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { cookies } from "next/headers";
+import redis from "@/lib/redis"; // Redis klientini chaqirish
 
 export async function POST(req) {
-  const cookieStore = await cookies(); // token saqlash uchun
+  const cookieStore = await cookies();
 
   try {
     const { email, password } = await req.json();
@@ -26,19 +27,40 @@ export async function POST(req) {
       return new Response("Parol noto‘g‘ri", { status: 401 });
     }
 
-    // JWT token
     const token = jwt.sign(
-      { userId: user._id, email: user.email, role: user.role }, // role qo‘shildi
+      { userId: user._id, email: user.email, role: user.role },
       process.env.JWT_SECRET,
       { expiresIn: "30d" }
     );
 
-    // cookie ga tokenni saqlaymiz
+    // 🔗 Redis bilan ishlash
+    if (!redis.isOpen) await redis.connect();
+
+    const userData = {
+      id: user._id,
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      role: user.role,
+      faculty: user.faculty,
+      course: user.course,
+    };
+
+    // 🧠 Redisga saqlaymiz
+    await redis.setEx(`user:${user._id}`, 60 * 10, JSON.stringify(userData)); // 10 daqiqa
+    await redis.set(`token:${user._id}`, token, {
+      EX: 30 * 24 * 60 * 60, // 30 kun
+    });
+    await redis.set(`token:${token}`, user._id.toString(), {
+      EX: 30 * 24 * 60 * 60,
+    });
+
+    // 🍪 Cookie orqali token saqlanadi
     cookieStore.set({
       name: "unihub_token",
       value: token,
       httpOnly: true,
-      maxAge: 30 * 24 * 60 * 60, // 30 kun
+      maxAge: 30 * 24 * 60 * 60,
       path: "/",
     });
 

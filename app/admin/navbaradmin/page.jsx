@@ -32,6 +32,11 @@ const navLinks = [
     label: "Muammolar",
     icon: <FaExclamationTriangle />,
   },
+  {
+    href: "/admin/bookinBoard",
+    label: "Bookin Board",
+    icon: <FaExclamationTriangle />,
+  },
   { href: "/admin/sozlamalar", label: "Sozlamalar", icon: <FaCog /> },
 ];
 

@@ -18,14 +18,12 @@ const adminRoutes = ["/admin"];
 
 export async function middleware(request) {
   const token = request.cookies.get("unihub_token")?.value;
-  const currentPath = request.nextUrl.pathname;
+  const path = request.nextUrl.pathname;
 
-  const isProtected = protectedRoutes.some((route) =>
-    currentPath.startsWith(route)
-  );
-  const isAdmin = adminRoutes.some((route) => currentPath.startsWith(route));
+  const isProtected = protectedRoutes.some((route) => path.startsWith(route));
+  const isAdminPage = adminRoutes.some((route) => path.startsWith(route));
 
-  if (!token && (isProtected || isAdmin)) {
+  if (!token && (isProtected || isAdminPage)) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
@@ -35,21 +33,21 @@ export async function middleware(request) {
         token,
         new TextEncoder().encode(process.env.JWT_SECRET)
       );
-      console.log("TOKEN PAYLOAD:", payload); // 👈 terminalga chiqadi
-      // Admin bo'lmagan foydalanuvchi admin sahifaga kirsa, bosh sahifaga redirect qilamiz
-      if (isAdmin && payload.role !== "admin") {
+
+      if (isAdminPage && payload.role !== "admin") {
         return NextResponse.redirect(new URL("/", request.url));
       }
 
-      // Aks holda (ruxsat berilgan yo'l bo‘lsa) davom etaveradi
       return NextResponse.next();
     } catch (err) {
+      console.error("❌ Token xato yoki eskirgan:", err);
       return NextResponse.redirect(new URL("/login", request.url));
     }
   }
 
   return NextResponse.next();
 }
+
 export const config = {
   matcher: [
     "/chat/:path*",
@@ -61,7 +59,7 @@ export const config = {
     "/staff/:path*",
     "/darsresurslari/:path*",
     "/admin/:path*",
-    "/turnirlar/:path*", // ✅ Qo‘shildi
+    "/turnirlar/:path*",
     "/booking/:path*",
   ],
 };
