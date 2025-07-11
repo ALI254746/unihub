@@ -3,6 +3,7 @@ import SeatBooking from "@/models/SeatBooking";
 import jwt from "jsonwebtoken";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
+import redis from "@/lib/redis";
 
 export async function POST(req) {
   await connectDB();
@@ -11,8 +12,8 @@ export async function POST(req) {
   try {
     const { seatId, scannedQR, usageDuration } = await req.json();
     console.log("📩 Request body:", { seatId, scannedQR, usageDuration });
+
     const token = cookieStore.get("unihub_token")?.value;
-    console.log("⛔ Token yo‘q");
     if (!token) {
       console.log("⛔ Token yo‘q");
       return NextResponse.json({ error: "Token topilmadi" }, { status: 401 });
@@ -20,12 +21,8 @@ export async function POST(req) {
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const userId = decoded.userId;
-    console.log("🔐 TOKEN PAYLOAD:", decoded);
-    console.log("👤 User ID:", userId);
-    const parsedQR = JSON.parse(scannedQR);
-    console.log("📦 Parsed QR:", parsedQR);
 
-    // ⚠️ QR va joy mosligini tekshiramiz
+    const parsedQR = JSON.parse(scannedQR);
     if (parsedQR.seatId !== seatId) {
       console.log("❌ QR va seatId mos emas:", parsedQR.seatId, "!=", seatId);
       return NextResponse.json(
@@ -43,18 +40,20 @@ export async function POST(req) {
         { status: 400 }
       );
     }
-    console.log("🔍 Bookingni izlash:", { seatId, userId, status: "booked" });
-    // 🟢 Joyni faollashtiramiz
+
+    // 🟢 MongoDB: holatni "active" ga o‘tkazamiz
+    const usageExpiresAt = new Date(now.getTime() + usageDuration * 60000);
     const booking = await SeatBooking.findOneAndUpdate(
       { seatId, userId, status: "booked" },
       {
         status: "active",
         usageStartedAt: now,
-        usageExpiresAt: new Date(now.getTime() + usageDuration * 60000),
+        usageExpiresAt,
+        expiresAt: null, // band qilish tugadi
       },
       { new: true }
     );
-    console.log("Booking started:", booking);
+
     if (!booking) {
       return NextResponse.json(
         { error: "Booking topilmadi yoki allaqachon ishlatilgan" },
@@ -62,9 +61,28 @@ export async function POST(req) {
       );
     }
 
+    // 🧹 Redis: eski band qilish (booked) ma’lumotini o‘chiramiz
+    if (!redis.isOpen) await redis.connect();
+    await redis.del(`seat:${seatId}`);
+
+    // 🟢 Redis: yangi active holat bilan yozamiz (foydalanuvchi hali foydalanmoqda)
+    await redis.setEx(
+      `seat:${seatId}`,
+      usageDuration * 60,
+      JSON.stringify({
+        seatId,
+        status: "active",
+        usageStartedAt: now.toISOString(),
+        usageExpiresAt: usageExpiresAt.toISOString(),
+        firstName: booking.firstName,
+        lastName: booking.lastName,
+      })
+    );
+
+    console.log("🚀 Joy active bo‘ldi va Redis yangilandi");
     return NextResponse.json({ message: "Foydalanish boshlandi", booking });
   } catch (error) {
-    console.error("startUsing error:", error);
+    console.error("❌ startUsing error:", error);
     return NextResponse.json({ error: "Server xatosi" }, { status: 500 });
   }
 }

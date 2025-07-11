@@ -1,93 +1,63 @@
-"use client";
-import CoustomLink from "../components/LoadingOverlay"; // Importing custom link component
-import { useState } from "react";
+import React from "react";
 
-const resources = {
-  "1-kurs": [
-    "Matematika asoslari (PDF)",
-    "Kirish Informatika (Video)",
-    "Fizika 1-laboratoriya topshiriqlari",
-  ],
-  "2-kurs": [
-    "Ma'lumotlar tuzilmasi konspekti",
-    "Web dasturlash - HTML & CSS",
-    "Diskret matematika topshiriqlari",
-  ],
-  "3-kurs": [
-    "Algoritmlar va murakkablik",
-    "JavaScript asoslari",
-    "Tarmoq texnologiyalari darsligi",
-  ],
-  "4-kurs": [
-    "Bitiruv ishi uchun namuna",
-    "Fullstack yo'nalishi loyihasi",
-    "Malakaviy amaliyot hisobot shabloni",
-  ],
-};
-
-export default function ResourcesPage() {
-  const [selectedKurs, setSelectedKurs] = useState("");
-
-  const kurslar = Object.keys(resources);
-
-  const filteredResources = selectedKurs
-    ? { [selectedKurs]: resources[selectedKurs] }
-    : resources;
-
+export default function Page() {
   return (
-    <main className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-5xl mx-auto">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold text-green-700">
-            📚 Dars resurslari
-          </h1>
-          <CoustomLink
-            href="/"
-            className="px-4 py-2 text-sm bg-green-600 text-white rounded hover:bg-green-700"
-          >
-            ← Bosh sahifaga
-          </CoustomLink>
+    <div className="flex flex-col items-center justify-center min-h-screen px-4 bg-gradient-to-br from-blue-50 via-white to-blue-100">
+      <div className="max-w-3xl w-full text-center">
+        <h1 className="text-3xl sm:text-4xl font-bold text-blue-800 mb-4">
+          🎓 Dars Resurslari Bo‘limi
+        </h1>
+
+        <p className="text-gray-700 text-base sm:text-lg leading-relaxed mb-6">
+          Ushbu bo‘lim orqali siz turli fanlardan{" "}
+          <strong>mustaqil ishlar</strong>,
+          <strong> amaliy mashg‘ulotlar</strong> va{" "}
+          <strong>yakuniy nazoratlar</strong>ga tayyor PDF formatdagi
+          materiallarni topishingiz mumkin.
+        </p>
+
+        <div className="bg-white rounded-xl shadow-md p-6 text-left space-y-4">
+          <h2 className="text-xl font-semibold text-gray-800">
+            📚 Nimalar mavjud?
+          </h2>
+          <ul className="list-disc list-inside text-gray-700 text-sm sm:text-base space-y-1">
+            <li>
+              Fanlar bo‘yicha toifalangan resurslar (Fizika, Matematika,
+              Informatika...)
+            </li>
+            <li>
+              Kurs, yo‘nalish, ish turi va variant bo‘yicha{" "}
+              <strong>aniq filtrlash</strong>
+            </li>
+            <li>Yuklab olish uchun tayyor PDF fayllar</li>
+            <li>Topshiriq raqamiga qarab saralash imkoniyati</li>
+          </ul>
+
+          <h2 className="text-xl font-semibold text-gray-800 mt-6">
+            🤝 Qo‘shimcha imkoniyatlar
+          </h2>
+          <ul className="list-disc list-inside text-gray-700 text-sm sm:text-base space-y-1">
+            <li>
+              Boshqa talabalar tomonidan taklif qilingan{" "}
+              <strong>yordam xizmatlari</strong>
+              (masalan: mustaqil ish yozib berish, chizma chizish)
+            </li>
+            <li>
+              Yoki Boshqa talabalarga pul evaziga xizmatizni taklif qilishingiz
+              mumkun
+            </li>
+            <li>
+              O‘z xizmatingizni qo‘shish va boshqa talabalar bilan
+              <strong> telegram orqali bog‘lanish</strong>
+            </li>
+          </ul>
         </div>
 
-        {/* Kurs bo'yicha filter */}
-        <div className="mb-6">
-          <label className="mr-4 font-semibold text-green-800">
-            Kursni tanlang:
-          </label>
-          <select
-            className="border border-green-400 rounded p-2 text-black"
-            value={selectedKurs}
-            onChange={(e) => setSelectedKurs(e.target.value)}
-          >
-            <option value="">Barchasi</option>
-            {kurslar.map((kurs) => (
-              <option key={kurs} value={kurs}>
-                {kurs}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div className="space-y-8">
-          {Object.entries(filteredResources).map(([kurs, list]) => (
-            <div key={kurs}>
-              <h2 className="text-xl font-semibold text-green-800 mb-3">
-                {kurs}
-              </h2>
-              <ul className="space-y-2 list-disc list-inside">
-                {list.map((res, i) => (
-                  <li
-                    key={i}
-                    className="bg-white p-3 rounded-lg shadow hover:bg-green-50 transition text-black"
-                  >
-                    {res}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
-        </div>
+        <p className="text-gray-600 text-sm mt-8">
+          🔍 Yuqoridagi sahifalardan birini tanlang va kerakli dars resursini
+          toping!
+        </p>
       </div>
-    </main>
+    </div>
   );
 }

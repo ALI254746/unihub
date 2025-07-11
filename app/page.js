@@ -101,7 +101,7 @@ const cards = [
     titleColor: "text-blue-800",
   },
   {
-    title: "📚 Dars resurslari",
+    title: "📚 Talabalar Resurs Markazi",
     desc: "Kurslar bo‘yicha materiallar va darsliklar",
     href: "/darsresurslari",
     bgColor: "bg-green-100",
@@ -145,15 +145,7 @@ const cards = [
     hoverBgColor: "hover:bg-purple-200",
     titleColor: "text-purple-800",
   },
-  {
-    title: "🏆 Turnirlar",
-    desc: "Dasturlash, dizayn va boshqa sohalardagi turnirlarda ishtirok eting.",
-    href: "/turnirlar",
-    bgColor: "bg-green-100",
-    borderColor: "border-green-200",
-    hoverBgColor: "hover:bg-green-200",
-    titleColor: "text-green-800",
-  },
+
   {
     title: "🚨 Muammolar",
     desc: "Talabalar duch kelayotgan muammolarni muhokama qiling",
@@ -176,15 +168,6 @@ const cards = [
     title: "👨‍🏫 Xodimlar",
     desc: "Xodimlar haqida fikr bildiring va reyting bering",
     href: "/staff",
-    bgColor: "bg-indigo-100",
-    borderColor: "border-indigo-200",
-    hoverBgColor: "hover:bg-indigo-200",
-    titleColor: "text-indigo-800",
-  },
-  {
-    title: "🏫 Universitet",
-    desc: "Universitet haqida ma'lumotlar va reytinglar",
-    href: "/universitet",
     bgColor: "bg-indigo-100",
     borderColor: "border-indigo-200",
     hoverBgColor: "hover:bg-indigo-200",

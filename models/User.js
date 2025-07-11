@@ -34,7 +34,21 @@ const UserSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    // models/User.js
+    usageSessions: [
+      {
+        seatId: { type: String },
+        startedAt: { type: Date },
+        finishedAt: { type: Date },
+        duration: { type: Number }, // daqiqalarda
+      },
+    ],
+    totalActiveMinutes: {
+      type: Number,
+      default: 0,
+    },
   },
+
   { timestamps: true }
 );
 

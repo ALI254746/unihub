@@ -8,21 +8,34 @@ import CoustomLink from "./LoadingOverlay"; // Importing custom link component
 export default function Navbar() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const router = useRouter();
-
   const checkAuth = async () => {
-    try {
-      const res = await fetch("/api/me");
-      const data = await res.json();
-      setIsLoggedIn(data.isLoggedIn);
-    } catch {
+    // 1️⃣ Cookie orqali
+    const res = await fetch("/api/me");
+    const data = await res.json();
+
+    if (data.isLoggedIn) {
+      setIsLoggedIn(true);
+      return;
+    }
+
+    // 2️⃣ Cookie kechikkan bo‘lsa, tokenni localStorage'dan yubor
+    const token = localStorage.getItem("unihub_token");
+    if (token) {
+      const res2 = await fetch("/api/me", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token }),
+      });
+      const data2 = await res2.json();
+      setIsLoggedIn(data2.isLoggedIn);
+    } else {
       setIsLoggedIn(false);
     }
   };
-
+  // 🔧 Auth tekshirishni component yuklanganda chaqiramiz
   useEffect(() => {
     checkAuth();
   }, []);
-
   const handleLogout = async () => {
     await fetch("/api/logout", { method: "POST" });
     setIsLoggedIn(false); // frontend holatini darhol o‘zgartiramiz

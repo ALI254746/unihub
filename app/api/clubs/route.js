@@ -1,11 +1,11 @@
-// app/api/clubs/route.js
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongodb";
 import Club from "@/models/club";
 import { cookies } from "next/headers";
 import jwt from "jsonwebtoken";
+import redis from "@/lib/redis"; // ✅ Redis clientini chaqiramiz
 
-// Token orqali foydalanuvchini olish
+// 🔐 Token orqali foydalanuvchini olish
 async function getUserFromToken() {
   try {
     const cookiesStore = await cookies();
@@ -18,15 +18,32 @@ async function getUserFromToken() {
     return null;
   }
 }
-// ✅ GET - Barcha clublarni olish
+
+// ✅ GET - Barcha clublarni olish (Redis bilan)
 export async function GET() {
   await connectDB();
-
   try {
-    const clubs = await Club.find().sort({ createdAt: -1 }); // yangi yaratilganlar yuqorida bo‘ladi
-    console.log("Barcha clublar:", clubs);
+    if (!redis.isOpen) await redis.connect();
+
+    // 1️⃣ Avval redisdan tekshiramiz
+    const cachedClubs = await redis.get("clubs:all");
+    if (cachedClubs) {
+      console.log("✅ Clublar Redisdan olindi");
+      return NextResponse.json(
+        { message: "Clublar Redisdan olindi", data: JSON.parse(cachedClubs) },
+        { status: 200 }
+      );
+    }
+
+    // 2️⃣ Agar Redisda yo‘q bo‘lsa, DB’dan olamiz
+    const clubs = await Club.find().sort({ createdAt: -1 });
+    console.log("📦 Clublar DB’dan olindi");
+
+    // 3️⃣ Redisga saqlaymiz (10 daqiqa)
+    await redis.setEx("clubs:all", 60 * 10, JSON.stringify(clubs));
+
     return NextResponse.json(
-      { message: "Barcha clublar olindi", data: clubs },
+      { message: "Clublar DB’dan olindi", data: clubs },
       { status: 200 }
     );
   } catch (err) {
@@ -38,11 +55,11 @@ export async function GET() {
   }
 }
 
-// ✅ POST - Yangi club yaratish (faqat admin)
+// ✅ POST - Yangi club yaratish (Redis cache invalidation bilan)
 export async function POST(req) {
   await connectDB();
-
   const user = await getUserFromToken();
+
   if (!user || user.role !== "admin") {
     return NextResponse.json(
       { message: "Faqat adminlar club yaratishi mumkin" },
@@ -58,12 +75,18 @@ export async function POST(req) {
       name: body.name,
       interest: body.interests,
       createTime: body.createdAt,
-      members: body.members || [], // ✅ a’zolarni qo‘shish
+      members: body.members || [],
       description: body.description,
-
       userId: body.userId,
     });
-    console.log("Yangi club yaratildi:", newClub);
+
+    console.log("🟢 Yangi club yaratildi:", newClub);
+
+    // 🔄 Redis cache’ni yangilash uchun o‘chiramiz
+    if (!redis.isOpen) await redis.connect();
+    await redis.del("clubs:all");
+    console.log("🧹 Redisdagi 'clubs:all' cache tozalandi");
+
     return NextResponse.json(
       { message: "Club yaratildi", data: newClub },
       { status: 201 }

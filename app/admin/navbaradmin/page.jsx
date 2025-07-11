@@ -37,7 +37,16 @@ const navLinks = [
     label: "Bookin Board",
     icon: <FaExclamationTriangle />,
   },
-  { href: "/admin/sozlamalar", label: "Sozlamalar", icon: <FaCog /> },
+  {
+    href: "/admin/TalabaResurslarMarkazi",
+    label: "Talaba Dars resurslari",
+    icon: <FaUserPlus />,
+  },
+  {
+    href: "/admin/TalabaXizmatTaklifi",
+    label: "Talaba xizmat taklifi",
+    icon: <FaUserPlus />,
+  },
 ];
 
 export default function AdminNavbar() {

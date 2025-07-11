@@ -1,49 +1,14 @@
 "use client";
-
-import { useEffect, useRef, useState, useLayoutEffect } from "react";
-import CustomLink from "../components/LoadingOverlay";
-import { gsap } from "gsap";
+import { useEffect, useState } from "react";
+import Navbar from "./navbar";
 
 export default function AnnouncementsPage() {
   const [elonlar, setElonlar] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  const titleRef = useRef(null); // 🔵 Sarlavha uchun ref
-
-  useLayoutEffect(() => {
-    let ctx = gsap.context(() => {
-      gsap.from(titleRef.current, {
-        y: -150,
-        opacity: 0,
-        ease: "bounce.out",
-        duration: 1.5,
-      });
-    });
-
-    return () => ctx.revert(); // cleanup
-  }, []);
-
-  useEffect(() => {
-    const fetchElonlar = async () => {
-      try {
-        const res = await fetch("/api/adminapi/elon");
-        const data = await res.json();
-        if (res.ok) {
-          setElonlar(data);
-        } else {
-          setError(data.message || "❌ E’lonlar yuklanmadi");
-        }
-      } catch (err) {
-        setError("🔌 Serverga ulanishda xatolik");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchElonlar();
-  }, []);
-
+  const [filters, setFilters] = useState("barchasi");
+  const [search, setSearch] = useState("");
   const getCategoryIcon = (category) => {
     switch (category) {
       case "yangilik":
@@ -56,7 +21,6 @@ export default function AnnouncementsPage() {
         return "📄";
     }
   };
-
   const getTimeAgo = (createdAt) => {
     const date = new Date(createdAt);
     const now = new Date();
@@ -74,56 +38,94 @@ export default function AnnouncementsPage() {
 
     return date.toLocaleDateString("uz-UZ");
   };
+  useEffect(() => {
+    const fetchElonlar = async () => {
+      try {
+        const res = await fetch("/api/adminapi/elon");
+        const data = await res.json();
+        if (res.ok) setElonlar(data);
+        else setError(data.message || "❌ E’lonlar yuklanmadi");
+      } catch (err) {
+        setError("🔌 Serverga ulanishda xatolik");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchElonlar();
+  }, []);
+
+  const filteredElonlar = elonlar.filter((item) => {
+    const searchMatch = item.title.toLowerCase().includes(search.toLowerCase());
+    const categoryMatch = filters === "barchasi" || item.category === filters;
+    return searchMatch && categoryMatch;
+  });
 
   return (
-    <main className="min-h-screen bg-gray-50 p-6 text-black">
-      <div className="flex justify-between items-center mb-6">
-        <h1 ref={titleRef} className="text-3xl font-bold text-blue-700">
-          📢 E'lonlar
-        </h1>
-        <CustomLink
-          href="/"
-          className="px-4 py-2 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
-        >
-          ← Bosh sahifaga
-        </CustomLink>
-      </div>
-
-      {loading ? (
-        <div className="flex items-center justify-center min-h-[40vh]">
-          <p className="text-gray-600 text-xl animate-pulse">
-            ⏳ Yuklanmoqda...
-          </p>
-        </div>
-      ) : error ? (
-        <p className="text-red-600">{error}</p>
-      ) : elonlar.length === 0 ? (
-        <p className="text-gray-500">Hozircha e’lon yo‘q.</p>
-      ) : (
-        <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-3 gap-4">
-          {elonlar.map((elon) => (
-            <li
-              key={elon._id}
-              className="bg-white p-4 rounded-xl shadow hover:bg-blue-50 transition"
-            >
-              <div className="flex items-center gap-2 text-blue-800 font-semibold">
-                <span className="text-lg">
-                  {getCategoryIcon(elon.category)}
-                </span>
-                <h2 className="text-base font-semibold truncate">
-                  {elon.title}
-                </h2>
-              </div>
-              <p className="text-sm text-gray-700 mt-1 line-clamp-2">
-                {elon.description}
+    <>
+      <Navbar
+        filters={filters}
+        setFilters={setFilters}
+        search={search}
+        setSearch={setSearch}
+      />
+      <main className="min-h-screen bg-gray-50 p-6 text-black">
+        <div className="max-w-6xl mx-auto">
+          {loading ? (
+            <div className="flex items-center justify-center min-h-[40vh]">
+              <p className="text-gray-600 text-xl animate-pulse">
+                ⏳ Yuklanmoqda...
               </p>
-              <div className="text-xs text-gray-500 mt-1">
-                🏷 {elon.category} | 🕒 {getTimeAgo(elon.createdAt)}
+            </div>
+          ) : error ? (
+            <p className="text-red-600">{error}</p>
+          ) : filteredElonlar.length === 0 ? (
+            <p className="text-gray-500">Hozircha e’lon yo‘q.</p>
+          ) : (
+            <div className="space-y-4">
+              {filteredElonlar.map((item) => (
+                <div
+                  key={item._id}
+                  className="bg-white p-5 rounded-xl shadow-sm flex justify-between items-start border border-gray-200"
+                >
+                  <div className="flex items-start gap-4">
+                    <div className="bg-gray-100 text-gray-700 p-2 rounded-full text-xl">
+                      {getCategoryIcon(item.category)}
+                    </div>
+                    <div>
+                      <h2 className="text-lg font-semibold text-gray-900">
+                        {item.title}
+                      </h2>
+                      <p className="text-gray-700 text-sm mt-1">
+                        {item.description}
+                      </p>
+                      <span className="inline-block mt-2 bg-gray-200 text-gray-800 text-xs px-3 py-1 rounded-full">
+                        {item.category}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="text-sm text-gray-500 whitespace-nowrap">
+                    {getTimeAgo(item.createdAt)}
+                  </div>
+                </div>
+              ))}
+              <div className="mt-10 flex justify-center items-center gap-2">
+                {Array.from({ length: 5 }, (_, i) => (
+                  <button
+                    key={i}
+                    className={`w-8 h-8 flex items-center justify-center rounded ${
+                      i === 1
+                        ? "bg-gray-900 text-white"
+                        : "bg-white border border-gray-300 text-gray-700 hover:bg-gray-200"
+                    }`}
+                  >
+                    {i + 1}
+                  </button>
+                ))}
               </div>
-            </li>
-          ))}
-        </ul>
-      )}
-    </main>
+            </div>
+          )}
+        </div>
+      </main>
+    </>
   );
 }
