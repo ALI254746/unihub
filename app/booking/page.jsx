@@ -51,7 +51,7 @@ export default function BookingPage() {
      
 
         {/* Tabs and content wrapper */}
-        <div className="w-full px-4 sm:px-8 mt-12">
+        <div className="w-full px-4 sm:px-8 mt-6">
           {/* Tab content */}
           <div className="w-full  ">
             {activeTab === "library" && (

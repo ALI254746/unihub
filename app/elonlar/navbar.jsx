@@ -8,7 +8,7 @@ export default function Navbar({ filters, setFilters, search, setSearch }) {
   const pathname = usePathname();
 
   return (
-    <header className="sticky top-0 bg-gray-300/80  backdrop-blur-md 0 border-b  shadow-sm">
+    <header className="fixed top-0 left-0 right-0  bg-white/10 backdrop-blur-sm shadow-sm px-4 py-1 z-10">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-4">
         {/* Logo */}
         <div className="flex items-center gap-4 w-full sm:w-auto justify-between sm:justify-start">

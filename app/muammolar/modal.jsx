@@ -82,7 +82,7 @@ export default function IssueModal({ isOpen, onClose, onSuccess }) {
               Kategoriya:
             </label>
             <select
-              className="border rounded px-2 py-1 text-sm text-gray-800"
+              className=" border rounded px-2 py-1 text-sm text-gray-800"
               value={category}
               onChange={(e) => setCategory(e.target.value)}
             >
