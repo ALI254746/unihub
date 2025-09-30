@@ -3,6 +3,7 @@ import { connectDB } from "@/lib/mongodb";
 import { cookies } from "next/headers";
 import jwt from "jsonwebtoken";
 import Profile from "@/models/Profile";
+import redis from "@/lib/redis";
 
 async function getUserFromToken() {
   try {
@@ -20,24 +21,34 @@ async function getUserFromToken() {
 
 export async function GET() {
   await connectDB();
+  if (!redis.isOpen) await redis.connect();
 
   const user = await getUserFromToken();
   if (!user?.userId) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
 
-  // lean() — natijani oddiy JS obyektiga aylantiradi
+  const redisKey = `profile:${user.userId}`;
+  const cachedProfile = await redis.get(redisKey);
+
+  if (cachedProfile) {
+    return NextResponse.json(JSON.parse(cachedProfile));
+  }
+
   const profile = await Profile.findOne({ userId: user.userId }).lean();
 
   if (!profile) {
     return NextResponse.json({ message: "Profil topilmadi" }, { status: 404 });
   }
 
+  // Redisga 1 soatga (3600s) cache qilamiz
+  await redis.setEx(redisKey, 3600, JSON.stringify(profile));
+
   return NextResponse.json(profile);
 }
-
 export async function PATCH(req) {
   await connectDB();
+  if (!redis.isOpen) await redis.connect();
 
   const user = await getUserFromToken();
   if (!user?.userId) {
@@ -46,7 +57,6 @@ export async function PATCH(req) {
 
   const body = await req.json();
 
-  // Majburiy maydonlarni tekshirish (iste’molga qarab qo'shishingiz mumkin)
   const requiredFields = [
     "name",
     "surname",
@@ -55,6 +65,7 @@ export async function PATCH(req) {
     "group",
     "phone",
   ];
+
   for (const field of requiredFields) {
     if (!body[field]) {
       return NextResponse.json(
@@ -69,6 +80,9 @@ export async function PATCH(req) {
     { $set: body },
     { new: true, upsert: true }
   ).lean();
+
+  const redisKey = `profile:${user.userId}`;
+  await redis.setEx(redisKey, 3600, JSON.stringify(updatedProfile)); // cache ni yangilash
 
   return NextResponse.json(updatedProfile);
 }

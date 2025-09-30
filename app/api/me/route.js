@@ -71,6 +71,7 @@ export async function GET() {
     const cachedUser = await redis.get(`user:${userId}`);
     if (cachedUser) {
       const parsed = JSON.parse(cachedUser);
+      console.log("📌 Redisdan o‘qilgan role:", parsed.role); // ✅
       return NextResponse.json({
         isLoggedIn: true,
         userId,
@@ -82,7 +83,7 @@ export async function GET() {
         },
       });
     }
-
+    console.log("📌 JWT’dan o‘qilgan role:", payload.role); // ✅
     // Redisda topilmasa JWT'dan
     return NextResponse.json({
       isLoggedIn: true,

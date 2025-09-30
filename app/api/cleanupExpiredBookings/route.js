@@ -45,13 +45,6 @@ export async function GET() {
       {
         $set: {
           status: "empty",
-          usageStartedAt: null,
-          usageExpiresAt: null,
-          userId: null,
-          firstName: null,
-          lastName: null,
-          expiresAt: null,
-          createdAt: null,
         },
       }
     );

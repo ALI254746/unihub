@@ -4,7 +4,7 @@ import React from "react";
 import { useState } from "react";
 import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
-
+import { FaChair } from "react-icons/fa";
 const usageChartOptions = {
   chart: { type: "line", height: 300 },
   title: { text: "" },
@@ -43,6 +43,36 @@ export default function StatisticsTab() {
   const [usageRange, setUsageRange] = useState("Kunlik");
   const [facultyRange, setFacultyRange] = useState("Oy bo'yicha");
   const [chartOptions, setChartOptions] = useState(null);
+  const [expanded, setExpanded] = useState(null);
+  const chairs = [
+    {
+      id: 22,
+      hall: "Asosiy zal",
+      color: "bg-yellow-50",
+      textColor: "text-green-800",
+      used: 47,
+      todayHours: 5.3,
+      topUser: "Ali Valiyev",
+    },
+    {
+      id: 15,
+      hall: "Asosiy zal",
+      color: "bg-gray-200",
+      textColor: "text-yellow-600",
+      used: 34,
+      todayHours: 3.8,
+      topUser: "Dilshod Karimov",
+    },
+    {
+      id: 8,
+      hall: "Asosiy zal",
+      color: "bg-emerald-200",
+      textColor: "text-orange-950",
+      used: 28,
+      todayHours: 2.1,
+      topUser: "Zarina Ismoilova",
+    },
+  ];
   const facultyChartOptions = {
     chart: { type: "pie", height: window.innerWidth < 640 ? 200 : 300 }, // kichik ekranda 200px},
     title: { text: "" },
@@ -59,7 +89,7 @@ export default function StatisticsTab() {
   return (
     <div className="space-y-6 text-white ">
       {/* Stat Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className=" grid grid-cols-2 md:grid-cols-3 gap-2">
         {/* 1. Bugungi foydalanuvchilar */}
         <div className="bg-white  rounded-xl shadow-md p-6">
           <div className="flex justify-between items-start">
@@ -123,38 +153,60 @@ export default function StatisticsTab() {
         </div>
 
         {/* 3. Bugungi bandlar */}
-        <div className="bg-white  rounded-xl shadow-md p-6">
-          <div className="flex justify-between items-start">
-            <div>
-              <p className="text-sm text-gray-500 dark:text-gray-400">
-                Bugungi bandlar
-              </p>
-              <h3 className="text-2xl text-black font-bold mt-1">42</h3>
-              <p className="text-sm text-red-500 mt-1 flex items-center gap-1">
-                <svg
-                  className="w-4 h-4"
-                  fill="currentColor"
-                  viewBox="0 0 384 512"
-                >
-                  <path d="M169.4 470.6c12.5 12.5 32.8 12.5 45.3 0l160-160c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L224 370.8V64c0-17.7-14.3-32-32-32s-32 14.3-32 32l0 306.7L54.6 265.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l160 160z" />
-                </svg>
-                3% kamayish
-              </p>
+      </div>
+      <div className="bg-white rounded-2xl p-1 card-shadow border border-gray-100">
+        <h4 className="text-lg font-semibold text-gray-900 mb-2">
+          Eng mashhur stullar
+        </h4>
+        <div className="space-y-3">
+          {chairs.map((chair) => (
+            <div
+              key={chair.id}
+              className={`${chair.color} rounded-lg p-2 cursor-pointer`}
+              onClick={() =>
+                setExpanded(expanded === chair.id ? null : chair.id)
+              }
+            >
+              {/* Main row */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <FaChair
+                    className={`${chair.textColor}`}
+                    style={{ fontSize: "25px" }}
+                  />
+                  <span className="font-semibold text-black">{chair.hall}</span>
+                  <span className="font-semibold text-black">
+                    Stul #{chair.id}
+                  </span>
+                </div>
+                <span className="text-sm font-medium text-gray-700">
+                  {chair.used}x
+                </span>
+              </div>
+
+              {/* Expanded section */}
+              {expanded === chair.id && (
+                <div className="mt-2 pl-8 text-sm text-gray-700 space-y-1">
+                  <p>
+                    Bugun ishlatilgan:{" "}
+                    <span className="font-semibold text-black">
+                      {chair.todayHours} soat
+                    </span>
+                  </p>
+                  <p>
+                    Eng ko‘p foydalangan:{" "}
+                    <span className="font-semibold text-black">
+                      {chair.topUser}
+                    </span>
+                  </p>
+                </div>
+              )}
             </div>
-            <div className="bg-amber-100 dark:bg-amber-900/30 p-3 rounded-lg">
-              <svg
-                className="w-6 h-6 text-amber-500 dark:text-amber-400"
-                fill="currentColor"
-                viewBox="0 0 448 512"
-              >
-                <path d="M128 0c17.7 0 32 14.3 32 32V64H288V32c0-17.7 14.3-32 32-32s32 14.3 32 32V64h48c26.5 0 48 21.5 48 48v48H0V112C0 85.5 21.5 64 48 64H96V32c0-17.7 14.3-32 32-32zM0 192H448V464c0 26.5-21.5 48-48 48H48c-26.5 0-48-21.5-48-48V192zM329 305c9.4-9.4 9.4-24.6 0-33.9s-24.6-9.4-33.9 0l-95 95-47-47c-9.4-9.4-24.6-9.4-33.9 0s-9.4 24.6 0 33.9l64 64c9.4 9.4 24.6 9.4 33.9 0L329 305z" />
-              </svg>
-            </div>
-          </div>
+          ))}
         </div>
       </div>
-      <div className="bg-white rounded-xl shadow-md p-4 w-full h-auto">
-        <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="bg-white rounded-xl shadow-md  w-full h-auto">
+        <div className=" grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Foydalanish statistikasi */}
           <div className="bg-white  rounded-xl shadow-md p-4">
             <div className="flex justify-between items-center mb-4">

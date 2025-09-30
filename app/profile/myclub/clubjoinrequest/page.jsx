@@ -1,56 +1,15 @@
 "use client";
 import { useEffect, useState } from "react";
-
-function UserDetailModal({ isOpen, onClose, user }) {
-  if (!isOpen || !user) return null;
-
-  return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
-      <div className="bg-white rounded-2xl p-8 w-[90%] max-w-md shadow-2xl border border-indigo-100 animate-fade-in">
-        <h2 className="text-2xl font-bold text-indigo-700 mb-6 text-center">
-          🧑‍🎓 Foydalanuvchi Tafsilotlari
-        </h2>
-        <div className="space-y-3 text-gray-800 text-[15px]">
-          <p>
-            <strong>Ism:</strong> {user.firstName}
-          </p>
-          <p>
-            <strong>Familiya:</strong> {user.lastName}
-          </p>
-          <p>
-            <strong>Yo‘nalish:</strong> {user.direction}
-          </p>
-          <p>
-            <strong>Kurs:</strong> {user.course}
-          </p>
-          <p>
-            <strong>Telefon:</strong> {user.phone}
-          </p>
-          <p>
-            <strong>Sabab:</strong> {user.reason}
-          </p>
-        </div>
-        <button
-          onClick={onClose}
-          className="mt-6 bg-indigo-600 text-white w-full py-2 rounded-lg font-medium hover:bg-indigo-700 transition"
-        >
-          Yopish
-        </button>
-      </div>
-    </div>
-  );
-}
+import Image from "next/image";
+import { FaCheck, FaTimes } from "react-icons/fa";
 
 export default function MyClubPage() {
   const [clubs, setClubs] = useState([]);
-  const [selectedUser, setSelectedUser] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
-  const [loading, setLoading] = useState(true); // 🔄 Yangi state
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchMyClubRequests = async () => {
-      setLoading(true); // 🔄 Yuklashni boshladik
+      setLoading(true);
       try {
         const res = await fetch("/api/myclubs/requests", {
           credentials: "include",
@@ -60,7 +19,7 @@ export default function MyClubPage() {
       } catch (err) {
         console.error("Tarmoq xatoligi:", err.message);
       } finally {
-        setLoading(false); // 🔄 Yuklash tugadi
+        setLoading(false);
       }
     };
     fetchMyClubRequests();
@@ -72,10 +31,7 @@ export default function MyClubPage() {
         method: "PATCH",
       });
       const data = await res.json();
-
       if (res.ok) {
-        alert("✅ So‘rov qabul qilindi");
-        // So‘rovni lokal holatdan olib tashlash:
         setClubs((prev) =>
           prev.map((club) =>
             club._id === clubId
@@ -92,20 +48,17 @@ export default function MyClubPage() {
         alert("❌ Xatolik: " + data.message);
       }
     } catch (err) {
-      console.error("Xatolik:", err.message);
-      alert("🔌 Tarmoqda muammo");
+      console.error(err);
     }
   };
+
   const rejectRequest = async (clubId, requestId) => {
     try {
       const res = await fetch(`/api/myclubs/requests/${requestId}/reject`, {
         method: "DELETE",
       });
       const data = await res.json();
-
       if (res.ok) {
-        alert("❌ So‘rov rad etildi");
-        // So‘rovni lokal holatdan olib tashlash:
         setClubs((prev) =>
           prev.map((club) =>
             club._id === clubId
@@ -122,108 +75,69 @@ export default function MyClubPage() {
         alert("❌ Xatolik: " + data.message);
       }
     } catch (err) {
-      console.error("Xatolik:", err.message);
-      alert("🔌 Tarmoqda muammo");
+      console.error(err);
     }
   };
 
-  const openModal = (user) => {
-    setSelectedUser(user);
-    setIsModalOpen(true);
-  };
-
-  const closeModal = () => {
-    setSelectedUser(null);
-    setIsModalOpen(false);
-  };
+  if (loading) {
+    return <p className="text-center mt-10">⏳ Yuklanmoqda...</p>;
+  }
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-[#fdfbfb] to-[#ebedee] p-8 space-y-10 text-gray-800">
-      <h1 className="text-4xl font-extrabold text-center text-indigo-700 drop-shadow-md">
-        🎓 Mening Klublarim
-      </h1>
+    <main className="p-4">
+      {clubs.map((club) => (
+        <div key={club._id} className="mb-10">
+          <h2 className="text-2xl font-bold mb-4">{club.name}</h2>
 
-      {loading ? (
-        <div className="text-center mt-16 text-gray-500 animate-pulse">
-          <span className="inline-block w-6 h-6 mr-2 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin"></span>
-          Ma’lumotlar yuklanmoqda...
-        </div>
-      ) : clubs.length === 0 ? (
-        <p className="text-center text-gray-500 mt-10">
-          🚫 Sizda hozircha klub yoki so‘rovlar mavjud emas.
-        </p>
-      ) : (
-        clubs.map((club) => (
-          <div
-            key={club._id}
-            className="bg-white rounded-3xl border border-gray-200 shadow-lg hover:shadow-indigo-200 transition-all p-6 md:p-8 space-y-5 animate-slide-in"
-          >
-            <div>
-              <h2 className="text-2xl md:text-3xl font-bold text-indigo-800">
-                {club.name}
-              </h2>
-              <p className="mt-1 text-gray-600 italic">{club.description}</p>
-              <p className="text-sm mt-2 text-indigo-500 font-medium">
-                🎯 Qiziqishlar:{" "}
-                <span className="text-indigo-700">{club.interests || "–"}</span>
-              </p>
-            </div>
-
-            <div>
-              <h3 className="text-lg md:text-xl font-semibold text-indigo-700">
-                ⏳ A’zolik So‘rovlari
-              </h3>
-              {club.pendingRequests.length === 0 ? (
-                <p className="text-gray-500 italic mt-1">So‘rovlar yo‘q</p>
-              ) : (
-                <ul className="space-y-3 max-h-64 overflow-y-auto pr-2 custom-scroll">
-                  {club.pendingRequests.map((user) => (
-                    <li
-                      key={user._id}
-                      className="flex flex-col md:flex-row justify-between items-start md:items-center bg-indigo-50 p-4 rounded-xl border border-indigo-100 shadow-sm"
+          <div className="space-y-3 max-h-64 overflow-y-auto pr-2">
+            {club.pendingRequests.length === 0 ? (
+              <p className="text-gray-500 italic">So‘rovlar yo‘q</p>
+            ) : (
+              club.pendingRequests.map((req) => (
+                <div
+                  key={req._id}
+                  className="bg-white rounded-lg shadow-sm p-4"
+                >
+                  <div className="flex items-center">
+                    <Image
+                      src={
+                        req.avatar ||
+                        "//https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-2.jpg"
+                      }
+                      alt={req.firstName}
+                      width={48}
+                      height={48}
+                      className="rounded-full mr-3"
+                    />
+                    <div className="flex-1">
+                      <h3 className="font-medium text-gray-800">
+                        {req.firstName} {req.lastName}
+                      </h3>
+                      <p className="text-sm text-gray-600">
+                        {req.direction},{req.course}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex justify-end mt-3 space-x-2">
+                    <button
+                      onClick={() => rejectRequest(club._id, req._id)}
+                      className="bg-red-100 text-red-600 px-4 py-2 rounded-md text-sm font-medium"
                     >
-                      <div className="mb-3 md:mb-0">
-                        <p className="font-semibold text-indigo-800">
-                          {user.firstName} {user.lastName}
-                        </p>
-                        <p className="text-sm text-gray-600 line-clamp-2">
-                          {user.reason}
-                        </p>
-                      </div>
-                      <div className="flex flex-wrap gap-2">
-                        <button
-                          onClick={() => acceptRequest(club._id, user._id)}
-                          className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-1.5 text-sm rounded-lg shadow transition"
-                        >
-                          ✅ Qabul qilish
-                        </button>
-                        <button
-                          onClick={() => rejectRequest(club._id, user._id)}
-                          className="bg-rose-600 hover:bg-rose-700 text-white px-4 py-1.5 text-sm rounded-lg shadow transition"
-                        >
-                          ❌ Rad etish
-                        </button>
-                        <button
-                          onClick={() => openModal(user)}
-                          className="bg-sky-600 hover:bg-sky-700 text-white px-4 py-1.5 text-sm rounded-lg shadow transition"
-                        >
-                          🔍 Batafsil
-                        </button>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
+                      <FaTimes className="inline mr-1" /> Rad etish
+                    </button>
+                    <button
+                      onClick={() => acceptRequest(club._id, req._id)}
+                      className="bg-green-100 text-green-600 px-4 py-2 rounded-md text-sm font-medium"
+                    >
+                      <FaCheck className="inline mr-1" /> Tasdiqlash
+                    </button>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
-        ))
-      )}
-
-      <UserDetailModal
-        isOpen={isModalOpen}
-        onClose={closeModal}
-        user={selectedUser}
-      />
+        </div>
+      ))}
     </main>
   );
 }

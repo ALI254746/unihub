@@ -22,10 +22,12 @@ const nextConfig = {
     return config;
   },
   experimental: {
-    serverActions: {},
+    serverActions: {
+      bodySizeLimit: "10mb", // body limit shu yerga qo‘shiladi
+    },
   },
   images: {
-    domains: ["source.unsplash.com", "images.unsplash.com"],
+    domains: ["storage.googleapis.com"], // ruxsat berilgan domenlar
   },
 };
 

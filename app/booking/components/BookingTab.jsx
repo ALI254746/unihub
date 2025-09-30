@@ -3,8 +3,11 @@
 import React, { useEffect, useState } from "react";
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import { Toaster, toast } from "react-hot-toast";
+import { FiClock } from "react-icons/fi";
+import { FaDoorOpen } from "react-icons/fa";
+import { FaChevronDown, FaChevronUp } from "react-icons/fa";
 import QR from "react-qr-code";
-
+import { FaUsers, FaBookOpen } from "react-icons/fa";
 // 🔼 Yuqori qator stollar
 const desks = [
   { id: "desk-1", x: 1, y: 1 },
@@ -293,6 +296,75 @@ const allDesks = desks.map((desk, index) => ({
   label: index + 1,
   id: `desk-${index + 1}`, // ✅ faqat tartibli id
 }));
+const zalData = [
+  {
+    name: "Asosiy zal",
+    time: "08:00 - 23:00",
+    status: "80% bo'sh",
+    statusColor: "bg-green-100 text-green-800",
+    busyTime: "09:00 - 11:00",
+    busyPercent: "95% band",
+    floor: "3-qavat",
+    usage: "44/175",
+    usagePercent: "25%",
+  },
+  {
+    name: "Kichik zal",
+    time: "09:00 - 21:00",
+    status: "60% bo'sh",
+    statusColor: "bg-yellow-100 text-yellow-800",
+    busyTime: "14:00 - 16:00",
+    busyPercent: "85% band",
+    floor: "2-qavat",
+    usage: "25/100",
+    usagePercent: "25%",
+  },
+  {
+    name: "O‘rta zal",
+    time: "10:00 - 22:00",
+    status: "40% bo'sh",
+    statusColor: "bg-red-100 text-red-800",
+    busyTime: "17:00 - 19:00",
+    busyPercent: "90% band",
+    floor: "1-qavat",
+    usage: "60/150",
+    usagePercent: "40%",
+  },
+];
+const friends = [
+  {
+    name: "Malika Karimova",
+    faculty: "IT fakulteti",
+    room: "2-xona",
+    seat: "15-stul",
+    avatar:
+      "https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-5.jpg",
+  },
+  {
+    name: "Sardor Aliyev",
+    faculty: "Iqtisod fakulteti",
+    room: "1-xona",
+    seat: "7-stul",
+    avatar:
+      "https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-6.jpg",
+  },
+  {
+    name: "Dilnoza Qodirova",
+    faculty: "Tarix fakulteti",
+    room: "3-xona",
+    seat: "21-stul",
+    avatar:
+      "https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-7.jpg",
+  },
+  {
+    name: "Javohir Umarov",
+    faculty: "Matematika fakulteti",
+    room: "2-xona",
+    seat: "9-stul",
+    avatar:
+      "https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-8.jpg",
+  },
+];
 
 export default function SeatMap() {
   const [qrValue, setQrValue] = useState(null);
@@ -304,6 +376,13 @@ export default function SeatMap() {
   const [selectedSeat, setSelectedSeat] = useState(null);
   const [bookingDuration, setBookingDuration] = useState("10");
   const [timer, setTimer] = useState(Date.now());
+  const [openIndex, setOpenIndex] = useState(null);
+  const [open, setOpen] = useState(false);
+  const [isFriendsModalOpen, setIsFriendsModalOpen] = useState(false);
+
+  const toggleAccordion = (index) => {
+    setOpenIndex(openIndex === index ? null : index);
+  };
   useEffect(() => {
     const fetchUserId = async () => {
       try {
@@ -819,9 +898,93 @@ export default function SeatMap() {
   };
 
   return (
-    <div className="flex flex-col-reverse md:flex-row w-full min-h-screen rounded-3xl overflow-auto ">
+    <div className="flex flex-col-reverse md:flex-row w-full min-h-[100vh] rounded-3xl overflow-auto ">
+      <div className="fixed bottom-6 right-6 z-20">
+        <button
+          onClick={() => setIsFriendsModalOpen(true)}
+          className="bg-blue-600 hover:bg-blue-700 text-white w-14 h-14 rounded-full shadow-lg flex items-center justify-center"
+        >
+          <FaUsers className="text-lg" />+
+          <FaBookOpen className="text-lg" />
+        </button>
+      </div>
+      {isFriendsModalOpen && (
+        <div className="fixed inset-0  bg-black/30 backdrop-blur-sm flex justify-center items-center z-30">
+          <div className="bg-white/30 backdrop-blur-md  rounded-2xl  shadow-xl w-[90%] max-w-md max-h-[80vh] overflow-hidden">
+            {/* Header */}
+            <div className="p-4 border-b flex justify-between items-center">
+              <h5 className="font-semibold text-gray-900">
+                Do'stlaringiz hozir shu yerda 📍
+              </h5>
+              <button
+                onClick={() => setIsFriendsModalOpen(false)}
+                className="text-gray-600 hover:text-red-500"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Content */}
+            <div className="p-4">
+              <div className="space-y-3 mb-4">
+                {friends.slice(0, 2).map((f, i) => (
+                  <div key={i} className="flex items-center space-x-3">
+                    <img
+                      src={f.avatar}
+                      alt={f.name}
+                      className="w-9 h-9 rounded-full object-cover"
+                    />
+                    <div className="flex-1">
+                      <p className="text-sm font-semibold text-gray-900 flex items-center gap-2">
+                        {f.name}
+                        <span className="text-xs text-blue-600 font-medium">
+                          📖 {f.room} • 💺 {f.seat}
+                        </span>
+                      </p>
+                      <p className="text-xs text-gray-500">{f.faculty}</p>
+                    </div>
+                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                  </div>
+                ))}
+              </div>
+
+              {open && (
+                <div className="space-y-3 mb-4 animate-slideDown">
+                  {friends.slice(2).map((f, i) => (
+                    <div key={i} className="flex items-center space-x-3">
+                      <img
+                        src={f.avatar}
+                        alt={f.name}
+                        className="w-9 h-9 rounded-full object-cover"
+                      />
+                      <div className="flex-1">
+                        <p className="text-sm font-semibold text-gray-900 flex items-center gap-2">
+                          {f.name}
+                          <span className="text-xs text-blue-600 font-medium">
+                            📖 {f.room} • 💺 {f.seat}
+                          </span>
+                        </p>
+                        <p className="text-xs text-gray-500">{f.faculty}</p>
+                      </div>
+                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <button
+                onClick={() => setOpen(!open)}
+                className="w-full py-2 text-blue-500 border border-primary rounded-xl font-medium hover:bg-primary hover:text-white transition-colors"
+              >
+                {open ? "Yopish" : "Barchasini ko'rish"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Chap tomon - 70% */}
-      <div className="w-full md:flex-[7] min-h-[70vh] max-h-[90vh]  md:min-h-0 bg-cyan-400/10 rounded-3xl p-1">
+      <div className="w-full lg:w-[70%] min-h-[50vh] max-h-[71vh]  md:min-h-0 bg-cyan-400/10 rounded-3xl p-4">
         {/* Bu yerga chapdagi kontent kiradi */}
         <Toaster position="top-center" />
 
@@ -936,47 +1099,90 @@ export default function SeatMap() {
         )}
       </div>
       {/* O‘ng tomon - 50% */}
-      <div className="w-full md:flex-[3] bg-gray-100 p-1  max-h-[90vh]md:min-h-0">
-        {/* Bu yerga o‘ngdagi kontent kiradi */}
-        <div className="w-full bg-white  rounded-xl shadow-md p-3 sm:p-4 mb-2">
-          <h3 className="text-md font-bold text-gray-800  mb-3">
+      <div className=" w-full lg:w-[30%]   lg:flex-col  gap-4 ">
+        <div className="w-full bg-white rounded-xl shadow-md p-3 sm:p-4 mb-2">
+          <h3 className="text-md font-bold text-gray-800 mb-3">
             Joriy bandlar
           </h3>
 
           <div className="space-y-3">
-            <div className="flex justify-between items-center p-2 bg-blue-200/40  rounded-md">
-              <div>
-                <p className="text-sm font-medium text-black ">Asosiy zal</p>
-                <p className="text-xs text-gray-500 ">08:00 - 23:00</p>
-              </div>
-              <div className="text-xs font-medium px-2 py-1 bg-green-100  text-green-800 dark:text-green-400 rounded-full">
-                80% bo'sh
-              </div>
-            </div>
+            {zalData.map((zal, index) => (
+              <div
+                key={index}
+                className="flex flex-col p-3 bg-blue-200/40 rounded-md space-y-2"
+              >
+                {/* HEADER */}
+                <div
+                  className="flex justify-between items-center cursor-pointer"
+                  onClick={() => toggleAccordion(index)}
+                >
+                  <div className="flex items-center gap-3">
+                    <p className="flex text-sm font-semibold bg-gradient-to-r from-blue-600 to-indigo-500 bg-clip-text text-transparent">
+                      <FaDoorOpen className=" text-emerald-900 w-8 h-5" />
+                      <span>{zal.name}</span>
+                    </p>
+                    <span className="flex gap-2 px-2 py-0.5 text-xs font-medium rounded-full bg-blue-100 text-blue-700">
+                      <FiClock className="text-rose-700 w-5 h-5" />
+                      {zal.time}
+                    </span>
+                  </div>
 
-            <div className="flex justify-between items-center p-2 bg-gray-50  rounded-md">
-              <div>
-                <p className="text-sm font-medium text-gray-800 ">
-                  Kompyuter xonasi
-                </p>
-                <p className="text-xs text-gray-500 ">10:00 - 14:00</p>
-              </div>
-              <div className="text-xs font-medium px-2 py-1 bg-yellow-100 text-yellow-800 dark:text-yellow-400 rounded-full">
-                40% bo'sh
-              </div>
-            </div>
+                  <div className="flex  items-center gap-2">
+                    <span
+                      className={`text-xs font-medium px-2 py-1 rounded-full ${zal.statusColor}`}
+                    >
+                      {zal.status}
+                    </span>
+                    {openIndex === index ? (
+                      <FaChevronUp className="text-gray-600 text-xs" />
+                    ) : (
+                      <FaChevronDown className="text-gray-600 text-xs" />
+                    )}
+                  </div>
+                </div>
 
-            <div className="flex justify-between items-center p-2 bg-gray-50  rounded-md">
-              <div>
-                <p className="text-sm font-medium text-gray-800 ">
-                  Kichik o'qish zali
-                </p>
-                <p className="text-xs text-gray-500 ">13:00 - 17:00</p>
+                {/* OCHILADIGAN QISM */}
+                {openIndex === index && (
+                  <div className="space-y-3 mt-2">
+                    {/* ENG BAND VAQT */}
+                    <div>
+                      <h4 className="text-xs font-semibold text-gray-900 mb-1">
+                        Eng band vaqtlar
+                      </h4>
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-600 text-xs">
+                          {zal.busyTime}
+                        </span>
+                        <span className="px-2 py-0.5 bg-red-100 text-red-800 rounded-full text-[10px]">
+                          {zal.busyPercent}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* QAVAT TAQSIMOT */}
+                    <div>
+                      <h4 className="text-xs font-semibold text-gray-900 mb-1">
+                        Qavat bo‘yicha taqsimot
+                      </h4>
+                      <div className="flex justify-between items-center mb-1">
+                        <span className="text-gray-600 text-xs">
+                          {zal.floor}
+                        </span>
+                        <span className="font-medium text-xs text-black">
+                          {zal.usage}
+                        </span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-1.5">
+                        <div
+                          className="bg-blue-500 h-1.5 rounded-full"
+                          style={{ width: zal.usagePercent }}
+                        ></div>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
-              <div className="text-xs font-medium px-2 py-1 bg-red-100  text-red-800 dark:text-red-400 rounded-full">
-                10% bo'sh
-              </div>
-            </div>
+            ))}
           </div>
         </div>
       </div>

@@ -14,6 +14,8 @@ const SeatBookingSchema = new mongoose.Schema({
   firstName: String,
   lastName: String,
   createdAt: { type: Date, default: Date.now },
+  faculty: { type: String }, // User.faculty dan avtomatik ko‘chiriladi
+  course: { type: String },
 });
 
 export default mongoose.models.SeatBooking ||

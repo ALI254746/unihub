@@ -16,7 +16,7 @@ export default function BookingPage() {
       <main className="min-h-screen bg-gradient-to-tr from-indigo-50 to-white">
         {/* Navbar */}
         <nav className="flex items-center justify-between px-6 py-4 bg-white shadow">
-          {/* Home icon */}
+          {/* Home icon fixed top-0 left-0 right-0  bg-white/10 backdrop-blur-sm shadow-sm px-4 py-3 z-10*/}
           <Link
             href="/"
             className="flex items-center text-[#0284C7] hover:text-black"

@@ -5,7 +5,7 @@ import Club from "@/models/club";
 import User from "@/models/User";
 
 export async function PATCH(req, { params }) {
-  const requestId = params.requestId;
+  const requestId = await params.requestId;
   await connectDB();
 
   try {
@@ -30,12 +30,18 @@ export async function PATCH(req, { params }) {
       );
     }
 
+    // 1️⃣ Foydalanuvchi rolini club_member ga o‘zgartirish
+    user.role = "club_member";
+    user.clubId = club._id;
+    await user.save();
+
+    // 2️⃣ Klub a’zolariga qo‘shish (agar oldin bo‘lmasa)
     if (!Array.isArray(club.members)) {
       club.members = [];
     }
 
     const alreadyMember = club.members.some(
-      (m) => m.user && m.user.toString() === request.userId.toString()
+      (m) => m.user && m.user.toString() === user._id.toString()
     );
 
     if (!alreadyMember) {
@@ -52,10 +58,11 @@ export async function PATCH(req, { params }) {
       await club.save();
     }
 
+    // 3️⃣ So‘rovni o‘chirish
     await ClubJoinRequest.findByIdAndDelete(requestId);
 
     return NextResponse.json(
-      { message: "Foydalanuvchi klubga qo‘shildi" },
+      { message: "✅ Foydalanuvchi klubga qo‘shildi va roli o‘zgartirildi" },
       { status: 200 }
     );
   } catch (error) {

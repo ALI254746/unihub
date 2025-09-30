@@ -76,13 +76,8 @@ export async function POST(req) {
       { seatId, userId, status: "active" },
       {
         status: "empty",
-        usageStartedAt: null,
-        usageExpiresAt: null,
-        userId: null,
-        firstName: null,
-        lastName: null,
-        expiresAt: null,
-        createdAt: null,
+
+        usageExpiresAt: finishedAt, // tugash vaqtini yozib qo'yamiz
       }
     );
 

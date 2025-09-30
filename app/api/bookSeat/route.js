@@ -35,6 +35,8 @@ export async function POST(request) {
     }
 
     const user = await User.findById(decoded.userId);
+    console.log("👤 User DB dan topildi:", user);
+
     if (!user)
       return new Response(JSON.stringify({ error: "User not found" }), {
         status: 404,
@@ -68,19 +70,6 @@ export async function POST(request) {
       );
     }
 
-    // const activeBooking = await SeatBooking.findOne({
-    //   userId: user._id,
-    //   status: "active",
-    //   usageExpiresAt: { $gt: new Date() },
-    // });
-
-    // if (activeBooking) {
-    //   return new Response(
-    //     JSON.stringify({ error: "Siz allaqachon faol stulga egasiz" }),
-    //     { status: 400 }
-    //   );
-    // }
-
     await SeatBooking.updateMany(
       {
         status: "booked",
@@ -95,9 +84,7 @@ export async function POST(request) {
       {
         $set: {
           status: "empty",
-          userId: null,
-          firstName: null,
-          lastName: null,
+
           usageStartedAt: null,
           usageExpiresAt: null,
         },
@@ -115,6 +102,9 @@ export async function POST(request) {
           userId: user._id,
           firstName: user.firstName,
           lastName: user.lastName,
+          faculty: user.faculty,
+          course: user.course,
+
           status: "booked",
           expiresAt,
           usageStartedAt: null,
@@ -136,9 +126,10 @@ export async function POST(request) {
         expiresAt,
         firstName: user.firstName,
         lastName: user.lastName,
+        faculty: user.faculty,
+        course: user.course,
         userId: user._id.toString(), // 🟢 BU QATOR MUHIM
         status: "booked",
-        expiresAt,
       })
     );
 
@@ -186,6 +177,8 @@ export async function GET() {
       expiresAt: b.expiresAt,
       firstName: b.firstName,
       lastName: b.lastName,
+      faculty: b.faculty, // 🟢 qo‘shildi
+      course: b.course,
       status: b.status,
     }));
 

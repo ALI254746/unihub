@@ -4,6 +4,7 @@ import Club from "@/models/club";
 import { cookies } from "next/headers";
 import jwt from "jsonwebtoken";
 import redis from "@/lib/redis"; // ✅ Redis clientini chaqiramiz
+import User from "@/models/User"; // Eslatma: User modelini import qilishni unutmang
 
 // 🔐 Token orqali foydalanuvchini olish
 async function getUserFromToken() {
@@ -69,6 +70,14 @@ export async function POST(req) {
 
   try {
     const body = await req.json();
+    // 🔍 1. Club egasi allaqachon club ochganmi – tekshiramiz
+    const existingClub = await Club.findOne({ userId: body.userId });
+    if (existingClub) {
+      return NextResponse.json(
+        { message: "Bu user allaqachon club ochgan" },
+        { status: 400 }
+      );
+    }
 
     const newClub = await Club.create({
       fullname: body.fullname,
@@ -81,6 +90,9 @@ export async function POST(req) {
     });
 
     console.log("🟢 Yangi club yaratildi:", newClub);
+    // ✅ USER ROLE ni club-owner ga o‘zgartiramiz
+    await User.findByIdAndUpdate(body.userId, { role: "club-owner" });
+    console.log("🔄 User roli club-owner ga o‘zgartirildi");
 
     // 🔄 Redis cache’ni yangilash uchun o‘chiramiz
     if (!redis.isOpen) await redis.connect();

@@ -76,7 +76,7 @@ export default function NavbarIssues() {
   };
 
   const routes = [
-    { title: "Topshiriqlar", href: "/darsresurslari/topshiriqlarBazasi" },
+    { title: "Topshiriqlar", href: "/darsresurslari" },
     { title: "Xizmatlar", href: "/darsresurslari/xizmatlar" },
   ];
 

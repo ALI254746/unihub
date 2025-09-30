@@ -90,7 +90,7 @@ function MobilAnnouncementsPage() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full pl-10 pr-4 py-2.5 text-sm 
-              bg-sky-50 placeholder-black 
+              bg-sky-50 placeholder-black text-black
               border border-sky-200 rounded-lg
               focus:outline-none focus:ring-2 
               focus:ring-sky-500 transition duration-200"

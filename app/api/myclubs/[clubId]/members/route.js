@@ -5,9 +5,9 @@ import Club from "@/models/club";
 export async function GET(req, { params }) {
   try {
     await connectDB();
-    const { clubId } = params;
+    const { clubId } = await params;
 
-    const club = await Club.findById(clubId).populate("members.user");
+    const club = await Club.findById(clubId).populate("members");
 
     if (!club) {
       return NextResponse.json({ message: "Club topilmadi" }, { status: 404 });
