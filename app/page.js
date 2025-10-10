@@ -64,7 +64,7 @@ export default function HomePage() {
       </nav>
 
       <div className="max-w-5xl mx-auto">
-        <h1 className="text-3xl font-bold text-gray-800 mb-6">
+        <h1 className="text-3xl font-bold text-gray-800 mb-4">
           🎓 UniHub Talabalar Platformasi
         </h1>
 

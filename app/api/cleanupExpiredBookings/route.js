@@ -48,7 +48,11 @@ export async function GET() {
         },
       }
     );
-
+    if (!redis.isOpen && !redis.isReady) {
+      await redis
+        .connect()
+        .catch((err) => console.error("Redisga ulanib bo‘lmadi:", err.message));
+    }
     // ✅ Redisni tozalaymiz
     const allSeatIds = [...bookedSeatIds, ...activeSeatIds];
     if (!redis.isOpen) await redis.connect();

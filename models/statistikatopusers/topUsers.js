@@ -1,43 +1,48 @@
 import mongoose from "mongoose";
 
+const DailySessionSchema = new mongoose.Schema({
+  seatId: { type: String },
+  startedAt: { type: Date },
+  finishedAt: { type: Date },
+  duration: { type: Number }, // daqiqa
+});
+
+const ClubInfoSchema = new mongoose.Schema({
+  clubId: { type: mongoose.Schema.Types.ObjectId, ref: "Club" },
+  name: { type: String }, // Club nomi
+  role: { type: String, enum: ["owner", "member"], default: "member" },
+});
+
+const DailyStatsSchema = new mongoose.Schema({
+  date: { type: Date },
+  activeMinutes: { type: Number, default: 0 },
+  topSeat: {
+    seatId: { type: String },
+    usageCount: { type: Number, default: 0 },
+  },
+  sessions: [DailySessionSchema],
+});
+
 const UserStatsSchema = new mongoose.Schema(
   {
     user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-
+    fullName: { type: String },
     avatar: { type: String },
     faculty: { type: String },
     course: { type: String },
-    fullName: { type: String }, // name + lastName
-    clubs: [
-      {
-        clubId: { type: mongoose.Schema.Types.ObjectId, ref: "Club" },
-        role: { type: String, enum: ["owner", "member"] },
-      },
-    ],
-
-    // Kunlik statistika
-    daily: {
-      date: { type: Date }, // oxirgi yangilangan kun
-      activeMinutes: { type: Number, default: 0 },
-      topSeat: {
-        seatId: { type: String },
-        usageCount: { type: Number, default: 0 },
-      },
-    },
-
-    // Haftalik statistika
+    clubs: [ClubInfoSchema],
+    rank: { type: Number }, // Top 10 dagi o'rni
+    daily: DailyStatsSchema,
     weekly: {
-      weekStart: { type: Date }, // hafta boshi
+      weekStart: { type: Date },
       activeMinutes: { type: Number, default: 0 },
       topSeat: {
         seatId: { type: String },
         usageCount: { type: Number, default: 0 },
       },
     },
-
-    // Oylik statistika
     monthly: {
-      month: { type: Date }, // oy boshi
+      month: { type: Date },
       activeMinutes: { type: Number, default: 0 },
       topSeat: {
         seatId: { type: String },

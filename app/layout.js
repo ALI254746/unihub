@@ -8,6 +8,8 @@ import { startMonthlyFacultyStatsCron } from "@/lib/cron/facultymonth";
 import { startDailyFacultyStatsCron } from "@/lib/cron/facultyDay";
 import { startWeeklyFacultyStatsCron } from "@/lib/cron/facultyweek";
 import { statistikatopusers } from "@/lib/cron/topusersRating/usersDay";
+import { startCleanupCron } from "@/lib/cron/cleanupCron";
+import { startDailyUsageStatsCron } from "@/lib/cron/hourlysatistika";
 const inter = Inter({ variable: "--font-inter", subsets: ["latin"] });
 const robotoMono = Roboto_Mono({
   variable: "--font-roboto-mono",
@@ -26,6 +28,8 @@ if (typeof window === "undefined") {
 }
 if (typeof window === "undefined") {
   startMonthlyStatsCron();
+  startCleanupCron();
+  startDailyUsageStatsCron();
 }
 // serverda ishga tushadi
 if (typeof window === "undefined") {

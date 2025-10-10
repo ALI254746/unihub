@@ -44,7 +44,7 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="flex justify-between items-center max-w-5xl mx-auto mb-8 mt-1 ">
+    <nav className="flex justify-between items-center max-w-5xl mx-auto mb-3 mt-1 ">
       <div className="text-2xl font-bold text-gray-800">🎓 UniHub</div>
 
       <div className="flex items-center space-x-4">

@@ -654,13 +654,6 @@ export default function SeatMap() {
       toast.error("Server bilan bog‘lanishda xatolik");
     }
   };
-  useEffect(() => {
-    const interval = setInterval(async () => {
-      await fetch("/api/cleanupExpiredBookings");
-    }, 60000); // har 60 soniyada tekshiradi
-
-    return () => clearInterval(interval);
-  }, []);
 
   function getSeatColor(seatId) {
     const info = getBookingInfo(seatId);
