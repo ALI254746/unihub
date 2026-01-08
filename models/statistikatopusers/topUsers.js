@@ -40,6 +40,7 @@ const UserStatsSchema = new mongoose.Schema(
         seatId: { type: String },
         usageCount: { type: Number, default: 0 },
       },
+      rank: { type: Number }, // haftalik top 10 dagi o'rni
     },
     monthly: {
       month: { type: Date },
@@ -47,6 +48,7 @@ const UserStatsSchema = new mongoose.Schema(
       topSeat: {
         seatId: { type: String },
         usageCount: { type: Number, default: 0 },
+        rank: { type: Number }, // haftalik top 10 dagi o'rni
       },
     },
   },

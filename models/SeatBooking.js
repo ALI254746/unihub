@@ -12,7 +12,7 @@ const SeatBookingSchema = new mongoose.Schema({
   usageStartedAt: { type: Date }, // faqat active uchun doimiy saqlanadigan vaqt boshlanishi
   usageExpiresAt: { type: Date }, // faqat active uchun doimiy saqlanadigan vaqt tugashi
   firstName: String,
-  lastName: String,
+  lastName: String, 
   createdAt: { type: Date, default: Date.now },
   faculty: { type: String }, // User.faculty dan avtomatik ko‘chiriladi
   course: { type: String },

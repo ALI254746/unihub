@@ -54,7 +54,7 @@ const users = [
   },
 ];
 
-const filters = ["Kun", "Hafta", "Oy", "Yil"];
+const filters = ["Kun", "Hafta", "Oy"];
 
 export default function TopUsersTab() {
   const [activeFilter, setActiveFilter] = useState("Hafta");

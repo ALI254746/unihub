@@ -1,5 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  reactStrictMode: false,
   webpack: (config, { isServer }) => {
     if (!isServer) {
       config.resolve.fallback = {
@@ -27,7 +28,17 @@ const nextConfig = {
     },
   },
   images: {
-    domains: ["storage.googleapis.com"], // ruxsat berilgan domenlar
+    remotePatterns: [
+      { protocol: "https", hostname: "storage.googleapis.com" },
+      { protocol: "https", hostname: "images.unsplash.com" },
+      { protocol: "https", hostname: "lh3.googleusercontent.com" },
+      { protocol: "https", hostname: "www.svgrepo.com" },
+      { protocol: "https", hostname: "illustrations.popsy.co" },
+      { protocol: "https", hostname: "www.transparenttextures.com" },
+      { protocol: "https", hostname: "github.com" },
+      { protocol: "https", hostname: "avatars.githubusercontent.com" },
+      { protocol: "https", hostname: "res.cloudinary.com" },
+    ],
   },
 };
 

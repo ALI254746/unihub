@@ -3,86 +3,154 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { BellIcon } from "@heroicons/react/24/outline"; // bildirishnoma ikoni
-import CoustomLink from "./LoadingOverlay"; // Importing custom link component
+import { Bell, Menu, X, ChevronRight } from "lucide-react"; 
+import CoustomLink from "./LoadingOverlay"; 
+
 export default function Navbar() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const router = useRouter();
+
   const checkAuth = async () => {
-    // 1️⃣ Cookie orqali
-    const res = await fetch("/api/me");
-    const data = await res.json();
+    try {
+        const res = await fetch("/api/me");
+        const data = await res.json();
 
-    if (data.isLoggedIn) {
-      setIsLoggedIn(true);
-      return;
-    }
+        if (data.isLoggedIn) {
+            setIsLoggedIn(true);
+            return;
+        }
 
-    // 2️⃣ Cookie kechikkan bo‘lsa, tokenni localStorage'dan yubor
-    const token = localStorage.getItem("unihub_token");
-    if (token) {
-      const res2 = await fetch("/api/me", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token }),
-      });
-      const data2 = await res2.json();
-      setIsLoggedIn(data2.isLoggedIn);
-    } else {
-      setIsLoggedIn(false);
+        const token = localStorage.getItem("unihub_token");
+        if (token) {
+            const res2 = await fetch("/api/me", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ token }),
+            });
+            const data2 = await res2.json();
+            setIsLoggedIn(data2.isLoggedIn);
+        } else {
+            setIsLoggedIn(false);
+        }
+    } catch (e) {
+        setIsLoggedIn(false);
     }
   };
-  // 🔧 Auth tekshirishni component yuklanganda chaqiramiz
+
   useEffect(() => {
     checkAuth();
   }, []);
+
   const handleLogout = async () => {
     await fetch("/api/logout", { method: "POST" });
-    setIsLoggedIn(false); // frontend holatini darhol o‘zgartiramiz
+    setIsLoggedIn(false); 
     router.push("/");
-    router.refresh(); // backend holatini yangilaymiz
+    router.refresh(); 
   };
 
   return (
-    <nav className="flex justify-between items-center max-w-5xl mx-auto mb-3 mt-1 ">
-      <div className="text-2xl font-bold text-gray-800">🎓 UniHub</div>
+    <div className="mx-auto max-w-[1200px] px-6 h-16 flex items-center justify-between">
+      
+      {/* 1. Logo Section */}
+      <div className="flex items-center gap-8">
+          <Link href="/" className="flex items-center gap-2 group">
+             <div className="w-6 h-6 rounded bg-white text-black flex items-center justify-center font-bold text-xs shadow-lg group-hover:scale-110 transition-transform">
+                 U
+             </div>
+             <span className="font-medium text-sm text-[#F7F8F8] tracking-tight group-hover:text-white transition-colors">UniHub</span>
+          </Link>
 
-      <div className="flex items-center space-x-4">
-        {/* Notification */}
-        <button
-          onClick={() => alert("Bildirishnomalar ochiladi")}
-          className="relative"
+          {/* Desktop Links */}
+          <div className="hidden md:flex items-center gap-6">
+              <NavLink href="/elonlar">E'lonlar</NavLink>
+              <NavLink href="/darsresurslari">Resurslar</NavLink>
+              <NavLink href="/talabalarkulubi">Klublar</NavLink>
+              <NavLink href="/about">Biz haqimizda</NavLink>
+          </div>
+      </div>
+
+      {/* 2. Right Actions */}
+      <div className="flex items-center gap-4">
+        
+        {/* Mobile Menu Toggle */}
+        <button 
+            className="md:hidden text-[#8A8F98] hover:text-white"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
         >
-          <BellIcon className="w-8 h-8 text-gray-700 hover:text-blue-600 transition" />
-          {/* Qizil nuqta */}
-          <span className="absolute top-0 right-0 block h-2 w-2 rounded-full bg-red-500 ring-2 ring-white"></span>
+            {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
         </button>
-        {isLoggedIn === null ? (
-          <span className="text-gray-500">Yuklanmoqda...</span>
-        ) : isLoggedIn ? (
-          <button
-            onClick={handleLogout}
-            className="px-4 py-2 rounded-md bg-red-500 text-white hover:bg-red-600"
-          >
-            Log Out
-          </button>
-        ) : (
-          <>
-            <CoustomLink
-              href="/register"
-              className="px-4 py-2 rounded-md border border-blue-600 text-blue-600 hover:bg-blue-50 transition"
+
+        {isLoggedIn ? (
+          <div className="hidden md:flex items-center gap-4">
+            <button className="relative text-[#8A8F98] hover:text-[#F7F8F8] transition-colors">
+              <Bell size={20} />
+              <span className="absolute top-0 right-0 block h-2 w-2 rounded-full bg-[#5E6AD2] ring-2 ring-[#08090A]"></span>
+            </button>
+            <button
+              onClick={handleLogout}
+              className="text-xs font-medium text-[#8A8F98] hover:text-red-400 transition-colors"
             >
-              Sign In
+              Chiqish
+            </button>
+            <CoustomLink
+               href="/dashboard"
+               className="bg-[#F7F8F8] text-black hover:bg-white text-xs font-medium px-3 py-1.5 rounded-full transition-all hover:shadow-[0_0_10px_rgba(255,255,255,0.3)]"
+            >
+               Boshqaruv
             </CoustomLink>
+          </div>
+        ) : (
+          <div className="hidden md:flex items-center gap-3">
             <CoustomLink
               href="/login"
-              className="px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700 transition"
+              className="text-xs font-medium text-[#8A8F98] hover:text-[#F7F8F8] transition-colors px-2"
             >
-              Log In
+              Kirish
             </CoustomLink>
-          </>
+            <CoustomLink
+              href="/register"
+              className="bg-[#F7F8F8] text-black hover:bg-white text-xs font-medium px-3 py-1.5 rounded-full transition-all hover:shadow-[0_0_10px_rgba(255,255,255,0.3)] flex items-center gap-1 group"
+            >
+              Ro'yxatdan o'tish <ChevronRight size={12} className="opacity-50 group-hover:translate-x-0.5 transition-transform" />
+            </CoustomLink>
+          </div>
         )}
       </div>
-    </nav>
+
+      {/* Mobile Menu Dropdown */}
+      {mobileMenuOpen && (
+          <div className="absolute top-16 left-0 right-0 bg-[#08090A] border-b border-white/10 p-6 flex flex-col gap-4 md:hidden z-50 animate-in slide-in-from-top-2">
+              <NavLink href="/elonlar" mobile>E'lonlar</NavLink>
+              <NavLink href="/darsresurslari" mobile>Resurslar</NavLink>
+              <NavLink href="/booking" mobile>Joy band qilish</NavLink>
+              <NavLink href="/talabalarkulubi" mobile>Klublar</NavLink>
+              <div className="h-px bg-white/5 my-2"></div>
+              {isLoggedIn ? (
+                  <>
+                    <CoustomLink href="/dashboard" className="text-sm font-medium text-white">Boshqaruv Paneli</CoustomLink>
+                    <button onClick={handleLogout} className="text-sm font-medium text-red-400 text-left">Chiqish</button>
+                  </>
+              ) : (
+                  <>
+                    <CoustomLink href="/login" className="text-sm font-medium text-[#8A8F98]">Kirish</CoustomLink>
+                    <CoustomLink href="/register" className="text-sm font-medium text-white">Ro'yxatdan o'tish</CoustomLink>
+                  </>
+              )}
+          </div>
+      )}
+
+    </div>
   );
+}
+
+function NavLink({ href, children, mobile }) {
+    return (
+        <CoustomLink 
+            href={href} 
+            className={`text-sm font-medium text-[#8A8F98] hover:text-[#F7F8F8] transition-colors ${mobile ? 'block py-2' : ''}`}
+        >
+            {children}
+        </CoustomLink>
+    )
 }
