@@ -47,7 +47,7 @@ export default function Home() {
                onClick={handleGoogleLogin}
                className="text-[13px] font-medium bg-[#F7F8F8] text-black px-3 py-1.5 rounded-full hover:opacity-90 transition-opacity flex items-center gap-2"
              >
-               Ro'yxatdan o'tish
+               Ro&apos;yxatdan o&apos;tish
              </button>
              <button className="md:hidden text-[#8A8F98]">
                <Menu size={20} />

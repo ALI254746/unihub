@@ -1,11 +1,19 @@
 "use client";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Html5QrcodeScanner, Html5Qrcode } from "html5-qrcode";
 import { Scan, AlertCircle, Check, Loader2, Link as LinkIcon, Shield, Command } from "lucide-react";
 import Link from "next/link";
 
 export default function VerifyPage() {
+  return (
+    <Suspense fallback={null}>
+      <VerifyPageInner />
+    </Suspense>
+  );
+}
+
+function VerifyPageInner() {
   const searchParams = useSearchParams();
   const userId = searchParams.get("uid");
   const router = useRouter();
