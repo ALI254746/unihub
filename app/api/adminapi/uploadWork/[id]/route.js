@@ -1,8 +1,12 @@
 import { connectDB } from "@/lib/mongodb";
 import AdminWork from "@/models/tayyorishpdf";
 import { NextResponse } from "next/server";
+import { requireAdmin } from "@/lib/adminAuth";
 
 export async function DELETE(req, { params }) {
+  const { error } = await requireAdmin();
+  if (error) return error;
+
   await connectDB();
   const { id } = params;
 

@@ -1,7 +1,11 @@
 import { MongoClient, ObjectId, GridFSBucket } from "mongodb";
 import { NextResponse } from "next/server";
+import { requireAuth } from "@/lib/adminAuth";
 
 export async function GET(req, { params }) {
+  const { error } = await requireAuth();
+  if (error) return error;
+
   const client = new MongoClient(process.env.MONGODB_URI);
   await client.connect();
   const db = client.db();

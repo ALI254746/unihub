@@ -65,10 +65,7 @@ export async function POST(req) {
 
     // 🍪 Cookie orqali tokenni yuborish (response orqali)
     const response = NextResponse.json(
-      {
-        message: "Kirish muvaffaqiyatli",
-        token,
-      },
+      { message: "Kirish muvaffaqiyatli" },
       { status: 200 }
     );
 
