@@ -134,6 +134,15 @@ export default function Ideas() {
         ))}
       </div>
 
+      {/* Mobile floating add button */}
+      <button
+        onClick={() => setShowModal(true)}
+        className="fixed bottom-6 right-6 z-40 md:hidden bg-blue-600 text-white w-14 h-14 rounded-full shadow-lg flex items-center justify-center text-2xl"
+        aria-label="Yangi g'oya qo'shish"
+      >
+        <FaLightbulb />
+      </button>
+
       {/* Modal */}
       {showModal && (
         <div className="fixed inset-0 z-50 backdrop-blur-sm bg-black/30 bg-opacity-10 flex items-center justify-center">
