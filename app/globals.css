@@ -1,14 +1,41 @@
 @import "tailwindcss";
 
-:root {
-  /* Linear Theme */
+/* Dark theme (default) */
+:root,
+[data-theme="dark"] {
   --bg-page: #000000;
   --bg-subtle: #080808;
   --text-main: #FFFFFF;
-  --text-dim: #8A8F98; /* The classic Linear gray */
+  --text-dim: #8A8F98;
   --border-color: #2E2E2E;
-  --accent-glow: #5E6AD2; /* Linear purple-ish blue for accents */
-  
+  --accent-glow: #5E6AD2;
+
+  --foreground: var(--text-main);
+  --background: var(--bg-page);
+}
+
+/* Light theme */
+[data-theme="light"] {
+  --bg-page: #FFFFFF;
+  --bg-subtle: #F7F8F8;
+  --text-main: #1A1A1A;
+  --text-dim: #5E6470;
+  --border-color: #E5E7EB;
+  --accent-glow: #5E6AD2;
+
+  --foreground: var(--text-main);
+  --background: var(--bg-page);
+}
+
+/* UniHub theme */
+[data-theme="unihub"] {
+  --bg-page: #0A0E1A;
+  --bg-subtle: #0F1625;
+  --text-main: #E8EAED;
+  --text-dim: #9AA0AC;
+  --border-color: #1E2A3A;
+  --accent-glow: #3B82F6;
+
   --foreground: var(--text-main);
   --background: var(--bg-page);
 }
