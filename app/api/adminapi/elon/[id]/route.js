@@ -1,8 +1,12 @@
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongodb"; // MongoDB ulanish
 import Elon from "@/models/Elon";
+import { requireAdmin } from "@/lib/adminAuth";
 
 export async function DELETE(_, { params }) {
+  const { error } = await requireAdmin();
+  if (error) return error;
+
   try {
     await connectDB();
 

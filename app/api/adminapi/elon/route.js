@@ -2,7 +2,11 @@ import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongodb"; // MongoDB ulanish
 import Elon from "@/models/Elon"; // Model
 import redis from "@/lib/redis";
+import { requireAdmin } from "@/lib/adminAuth";
 export async function POST(req) {
+  const { error } = await requireAdmin();
+  if (error) return error;
+
   try {
     await connectDB();
 

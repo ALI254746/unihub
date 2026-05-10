@@ -3,8 +3,12 @@ import AdminWork from "@/models/tayyorishpdf";
 import { NextResponse } from "next/server";
 import { MongoClient, GridFSBucket } from "mongodb";
 import { Readable } from "stream";
+import { requireAdmin } from "@/lib/adminAuth";
 
 export async function GET() {
+  const { error } = await requireAdmin();
+  if (error) return error;
+
   await connectDB();
 
   try {
@@ -20,6 +24,9 @@ export async function GET() {
 }
 
 export async function POST(req) {
+  const { error } = await requireAdmin();
+  if (error) return error;
+
   await connectDB();
   const client = new MongoClient(process.env.MONGODB_URI);
   await client.connect();

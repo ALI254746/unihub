@@ -15,24 +15,7 @@ export default function Navbar() {
     try {
         const res = await fetch("/api/me");
         const data = await res.json();
-
-        if (data.isLoggedIn) {
-            setIsLoggedIn(true);
-            return;
-        }
-
-        const token = localStorage.getItem("unihub_token");
-        if (token) {
-            const res2 = await fetch("/api/me", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ token }),
-            });
-            const data2 = await res2.json();
-            setIsLoggedIn(data2.isLoggedIn);
-        } else {
-            setIsLoggedIn(false);
-        }
+        setIsLoggedIn(data.isLoggedIn);
     } catch (e) {
         setIsLoggedIn(false);
     }

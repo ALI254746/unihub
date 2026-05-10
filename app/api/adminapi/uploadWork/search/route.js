@@ -1,8 +1,12 @@
 import { connectDB } from "@/lib/mongodb";
 import AdminWork from "@/models/tayyorishpdf";
 import { NextResponse } from "next/server";
+import { requireAuth } from "@/lib/adminAuth";
 
 export async function GET(req) {
+  const { error } = await requireAuth();
+  if (error) return error;
+
   await connectDB();
 
   const { searchParams } = new URL(req.url);
