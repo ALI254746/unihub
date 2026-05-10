@@ -4,9 +4,6 @@ import { NextResponse } from "next/server";
 import { MongoClient, GridFSBucket } from "mongodb";
 import { Readable } from "stream";
 
-// ⛳ Mongo URI
-const mongoURI = process.env.MONGODB_URI;
-const client = new MongoClient(mongoURI);
 export async function GET() {
   await connectDB();
 
@@ -24,6 +21,7 @@ export async function GET() {
 
 export async function POST(req) {
   await connectDB();
+  const client = new MongoClient(process.env.MONGODB_URI);
   await client.connect();
   const db = client.db();
 

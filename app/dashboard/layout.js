@@ -1,13 +1,21 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams, usePathname } from "next/navigation";
-import { 
-  Layout, Calendar, GraduationCap, BookOpen, CheckSquare, 
+import {
+  Layout, Calendar, GraduationCap, BookOpen, CheckSquare,
   FileText, Settings, ChevronRight, Menu, Search, Bell, MoreHorizontal, User, Video
 } from "lucide-react";
 
 export default function DashboardLayout({ children }) {
+  return (
+    <Suspense fallback={null}>
+      <DashboardLayoutInner>{children}</DashboardLayoutInner>
+    </Suspense>
+  );
+}
+
+function DashboardLayoutInner({ children }) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const searchParams = useSearchParams();
   const urlUid = searchParams.get("uid");

@@ -1,10 +1,8 @@
 import { MongoClient, ObjectId, GridFSBucket } from "mongodb";
 import { NextResponse } from "next/server";
 
-const mongoURI = process.env.MONGODB_URI;
-const client = new MongoClient(mongoURI);
-
 export async function GET(req, { params }) {
+  const client = new MongoClient(process.env.MONGODB_URI);
   await client.connect();
   const db = client.db();
 
